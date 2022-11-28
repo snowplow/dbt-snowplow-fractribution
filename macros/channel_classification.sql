@@ -1,5 +1,5 @@
 {% macro channel_classification() %}
-    {{ return(adapter.dispatch('channel_classification', 'fractribution')()) }}
+    {{ return(adapter.dispatch('channel_classification', 'snowplow_fractribution')()) }}
 {% endmacro %}
 
 {% macro snowflake__channel_classification() %}

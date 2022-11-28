@@ -2,13 +2,13 @@
 
 WITH Conversions AS (
   SELECT DISTINCT customerId
-  FROM {{ ref('conversions_by_customer_id') }}
+  FROM {{ ref('snowplow_fractribution_conversions_by_customer_id') }}
 ),
 NonConversions AS (
   SELECT
     customerId,
     MAX(visitStartTimestamp) AS nonConversionTimestamp
-  FROM {{ ref('sessions_by_customer_id') }} sessions_by_customer_id
+  FROM {{ ref('snowplow_fractribution_sessions_by_customer_id') }} se
   LEFT JOIN Conversions
     USING (customerId)
   WHERE Conversions.customerId IS NULL
@@ -28,9 +28,9 @@ SELECT
     {% endfor %}
     , ' > ') AS transformedPath
 FROM NonConversions
-LEFT JOIN {{ ref('sessions_by_customer_id') }} sessions_by_customer_id
+LEFT JOIN {{ ref('snowplow_fractribution_sessions_by_customer_id') }} se
   ON
-    NonConversions.customerId = sessions_by_customer_id.customerId
+    NonConversions.customerId = se.customerId
     AND DATEDIFF(day, visitStartTimestamp, nonConversionTimestamp)
       BETWEEN 0 AND {{ var('path_lookback_days') }}
 GROUP BY NonConversions.customerId

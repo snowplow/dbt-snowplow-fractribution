@@ -1,10 +1,10 @@
 
-name: 'fractribution'
+name: 'snowplow_fractribution'
 version: '1.0.0'
 config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
-profile: 'fractribution'
+profile: 'default'
 
 
 # These configurations specify where dbt should look for different types of files.
@@ -45,6 +45,6 @@ vars:
 
 on-run-start: "{{ create_udfs() }}"
 models:
-  fractribution:
-    +schema: "fractribution"
+  snowplow_fractribution:
+    +schema: "derived"
     +materialized: table

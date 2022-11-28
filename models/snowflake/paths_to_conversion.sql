@@ -1,6 +1,6 @@
 
 SELECT
-  conversions_by_customer_id.customerId,
+  con.customerId,
   conversionTimestamp,
   revenue,
   ARRAY_TO_STRING({{schema}}.TrimLongPath(
@@ -15,13 +15,13 @@ SELECT
       {% if arg_str %}, {{arg_str}}{% endif %})
     {% endfor %}
     , ' > ') AS transformedPath
-FROM {{ ref('conversions_by_customer_id') }} conversions_by_customer_id
-LEFT JOIN {{ ref('sessions_by_customer_id') }} sessions_by_customer_id
+FROM {{ ref('snowplow_fractribution_conversions_by_customer_id') }} con
+LEFT JOIN {{ ref('snowplow_fractribution_sessions_by_customer_id') }} se
   ON
-    conversions_by_customer_id.customerId = sessions_by_customer_id.customerId
+    con.customerId = se.customerId
     AND DATEDIFF(day, visitStartTimestamp, conversionTimestamp)
       BETWEEN 0 AND {{ var('path_lookback_days') }}
 GROUP BY
-  conversions_by_customer_id.customerId,
+  con.customerId,
   conversionTimestamp,
   revenue

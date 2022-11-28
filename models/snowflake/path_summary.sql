@@ -1,12 +1,12 @@
 WITH PathsToConversion AS (
   SELECT transformedPath, COUNT(*) AS conversions, SUM(revenue) AS revenue
   FROM
-    {{ ref('paths_to_conversion') }}
+    {{ ref('snowplow_fractribution_paths_to_conversion') }}
   GROUP BY transformedPath
 ), PathsToNonConversion AS (
   SELECT transformedPath, COUNT(*) AS nonConversions
   FROM 
-    {{ ref('paths_to_non_conversion') }}
+    {{ ref('snowplow_fractribution_paths_to_non_conversion') }}
     GROUP BY transformedPath
 )
 SELECT

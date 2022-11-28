@@ -1,12 +1,12 @@
 {% macro create_udfs() %}
-  {{ return(adapter.dispatch('create_udfs', 'fractribution')()) }}
+  {{ return(adapter.dispatch('create_udfs', 'snowplow_fractribution')()) }}
 {% endmacro %}
 
 
 {% macro snowflake__create_udfs() %}
 
 {{ config(
-  schema="fractribution"
+  schema="derived"
 )}}
   {% set trim_long_path %}
   -- Returns the last path_lookback_steps channels in the path if path_lookback_steps > 0,
