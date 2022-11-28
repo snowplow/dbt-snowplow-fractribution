@@ -21,9 +21,16 @@ FROM
         page_views.domain_userid = user_mapping.domain_userid
     {% endif %}
 WHERE
-    DATE(derived_tstamp) >= DATEADD(d, -{{ var('path_lookback_days') + 1 }}, '{{ var('conversion_window_start_date') }}')
+    DATE(derived_tstamp) >= DATEADD(d, -{{ var('path_lookback_days') + 1 }}, 
+                                CASE WHEN '{{ var('conversion_window_start_date') }}' = '' 
+                                THEN current_date()-31
+                                ELSE '{{ var('conversion_window_start_date') }}'
+                                END)
     AND
-    DATE(derived_tstamp) <= '{{ var('conversion_window_end_date') }}'
+    DATE(derived_tstamp) <= CASE WHEN '{{ var('conversion_window_end_date') }}' = '' 
+                                THEN current_date()-1
+                                ELSE '{{ var('conversion_window_end_date') }}'
+                                END
     AND
     -- restrict to certain hostnames
     page_urlhost IN (

@@ -1,5 +1,5 @@
 {% macro channel_spend() %}
-    {{ return(adapter.dispatch('snowplow_fractribution_channel_spend', 'snowplow_fractribution')()) }}
+    {{ return(adapter.dispatch('channel_spend', 'snowplow_fractribution')()) }}
 {% endmacro %}
 
 
