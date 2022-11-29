@@ -14,8 +14,8 @@
 -- Example table output for the user-supplied SQL:
 --   Channel     |  Spend
 --  ------------------------
---   direct      |  1050
---   paid_search |  10490 
+--   direct      |  1050.02
+--   paid_search |  10490.11 
 --   etc...
 
 
@@ -36,6 +36,4 @@
     LATERAL FLATTEN(c) channel
 {% endmacro %}
 
-
---add a comment here that shows the table output - 2 cols, one for spend, one for channel_name
 
