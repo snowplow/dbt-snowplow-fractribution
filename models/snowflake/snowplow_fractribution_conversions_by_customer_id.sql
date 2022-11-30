@@ -9,7 +9,7 @@ SELECT
     derived_tstamp AS conversionTimestamp,
     {{ conversion_value() }} AS revenue
 FROM
-    {{ source('atomic', 'events') }} AS events
+    {{ var('conversions_source' )}} AS events
     {% if var('use_snowplow_web_user_mapping_table') %}
         LEFT JOIN
         {{ var('snowplow_web_user_mapping_table') }} AS user_mapping

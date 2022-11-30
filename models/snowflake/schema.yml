@@ -3,15 +3,13 @@ version: 2
 
 sources:
   - name: atomic
-    schema: "{{ var('atomic_schema', 'atomic') }}"
+    schema: atomic
     tables:
       - name: events
-        identifier: "{{ var('events_table', 'events') }}"
   - name: derived
-    schema: "{{ var('page_views_schema', 'derived') }}"
+    schema: atomic_derived
     tables:
       - name: snowplow_web_page_views
-        identifier: "{{ var('page_views_table', 'snowplow_web_page_views') }}"
         
 models:
   - name: snowplow_fractribution_channel_counts

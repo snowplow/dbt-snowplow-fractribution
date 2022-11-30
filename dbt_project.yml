@@ -33,14 +33,11 @@ vars:
 
   use_snowplow_web_user_mapping_table: false # true if using the Snowplow base model for web user mappings (domain_userid => user_id)
 
-# Set source table vars if not using defaults:
-  # atomic_schema: 'atomic_test'
-  # events_table: 'fractribution_sample'
-  # page_views_schema: 'atomic_derived'
-  # page_views_table: 'snowplow_web_page_views_frac'
+# Overwrite these source table vars in your own dbt_project.yml if not using these defaults:
+  page_views_source: "{{ source('atomic_derived', 'snowplow_web_page_views') }}"
+  conversions_source: "{{ source('atomic', 'events') }}"
   
-  
-  # snowplow_web_user_mapping_table: fractribution_derived.snowplow_web_user_mapping # path (schema and table) in to the Snowplow web user mapping table (BigQuery)
+  # snowplow_web_user_mapping_table: atomic_derived.snowplow_web_user_mapping # path (schema and table) in to the Snowplow web user mapping table (BigQuery)
 
 
 on-run-start: "{{ create_udfs() }}"

@@ -13,7 +13,7 @@ SELECT
     mkt_source AS source,
     mkt_medium AS medium
 FROM
-    {{ source('derived', 'snowplow_web_page_views') }} page_views
+    {{ var('page_views_source') }}  page_views
     {% if var('use_snowplow_web_user_mapping_table') %}
         LEFT JOIN
         {{ var('snowplow_web_user_mapping_table') }} AS user_mapping
