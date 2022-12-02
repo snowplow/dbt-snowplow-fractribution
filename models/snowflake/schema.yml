@@ -7,7 +7,7 @@ sources:
     tables:
       - name: events
   - name: derived
-    schema: atomic_derived
+    schema: derived
     tables:
       - name: snowplow_web_page_views
         
