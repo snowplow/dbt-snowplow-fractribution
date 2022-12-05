@@ -5,9 +5,49 @@
 
 ![snowplow-logo](https://raw.githubusercontent.com/snowplow/dbt-snowplow-utils/main/assets/snowplow_logo.png)
 
-# dbt-snowplow-fractribution
+# snowplow-fractribution
 
-Snowplow Fractribution (marketing attribution) model for dbt
+This dbt package:
+- Uses page view and conversion events to perform fractional marketing attribution (fractribution) on your Snowplow data.
+- Is used in conjunction with a Python script or Docker image to create the final output table.
+- Is designed to be customized, allowing you to easily make modifications to suit your data and objectives. 
+
+Please refer to the [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for a full breakdown of the package. To run this package with detailed instructions and example data, see the [fractribution accelerator](https://docs.snowplow.io/accelerators/snowplow_fractribution/).
+
+### Adaptor Support
+
+The snowplow-fractribution v0.1.0 package currently supports Snowflake. 
+
+|      Warehouse     |    dbt versions     | snowplow-fractribution version |
+| :----------------: | :-----------------: | :----------------------------: |
+|      Snowflake     |  >=1.0.0 to <2.0.0  |             0.1.0              |
+
+### Requirements
+
+- A dataset of web events from the [Snowplow Javascript Tracker](https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/) and familiarity with the [snowplow-web](https://hub.getdbt.com/snowplow/snowplow_web/latest/) dbt package
+
+### Installation
+
+Check dbt Hub for the latest installation instructions, or read the [dbt docs](https://docs.getdbt.com/docs/build/packages) for more information on installing packages.
+
+### Configuration & Operation
+
+Please refer to the [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for details on how to configure and run the package.
+
+### Models
+
+The package contains multiple models that are used by the Python script for the final attribution calculation:
+
+| Model                     | Description                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------------- |
+| snowplow_fractribution_channel_counts   | A count of sessions per channel, campaign, source and medium|
+| snowplow_fractribution_channel_spend | The amount spent on advertising for each channel |
+| snowplow_fractribution_conversions_by_customer_id | Each conversion and associated revenue per customer_id|
+| snowplow_fractribution_path_summary | For each unique path, a summary of associated conversions, non conversions and revenue |
+| snowplow_fractribution_paths_to_conversion | Customer id and the the paths the customer has followed that have lead to conversion|
+| snowplow_fractribution_paths_to_non_conversion | Customer id and the the paths the customer has followed that have not lead to conversion|
+| snowplow_fractribution_sessions_by_customer_id | Channels per session by customer id|
+
 
 ### Setup steps
 

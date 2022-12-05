@@ -13,7 +13,7 @@ sources:
         
 models:
   - name: snowplow_fractribution_channel_counts
-    description: Number of conversion events per channel, campaign, source and medium
+    description: Number of sessions per channel, campaign, source and medium
     columns:
       - name: channel
         description: Channel name
