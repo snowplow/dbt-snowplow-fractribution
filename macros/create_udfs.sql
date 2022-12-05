@@ -22,7 +22,7 @@
 
 
   -- Functions for applying transformations to path arrays.
-  -- unique: Identity transform.
+  -- uniquePath: Identity transform.
   --   E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, B, C, D, C, C].
   -- exposure: Collapse sequential repeats.
   --   E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C, D, C].
@@ -74,7 +74,7 @@
   {% set unique %}
   -- Returns the unique/identity transform of the given path array.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, B, C, D, C, C].
-  CREATE FUNCTION IF NOT EXISTS {{schema}}.UniquePath(path ARRAY) -- TODO: should this be called unique?
+  CREATE FUNCTION IF NOT EXISTS {{schema}}.UniquePath(path ARRAY)
   RETURNS ARRAY
   LANGUAGE JAVASCRIPT AS $$
     return PATH;
