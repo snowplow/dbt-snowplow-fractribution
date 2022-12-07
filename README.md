@@ -32,7 +32,7 @@ Check dbt Hub for the latest installation instructions, or read the [dbt docs](h
 
 ### Configuration & Operation
 
-Please refer to the [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for details on how to configure and run the package.
+Please see below or refer to the [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for details on how to configure and run the package and the python script that creates the final output table.
 
 ### Models
 
@@ -48,18 +48,26 @@ The package contains multiple models that are used by the Python script for the 
 | snowplow_fractribution_paths_to_non_conversion | Customer id and the the paths the customer has followed that have not lead to conversion|
 | snowplow_fractribution_sessions_by_customer_id | Channels per session by customer id|
 
+The models produced by the Python script are the following:
+
+| Model                                      | Description                                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------------------------- |
+| snowplow_fractribution_report_table        | The main output table that shows conversions, revenue, spend and ROAS per channel.
+| snowplow_fractribution_channel_attribution | The conversion and revenue attribution per channel (used to create the report table).
+| snowplow_fractribution_path_summary_with_channels | For each unique path, a summary of conversions, non conversions and revenue, as well as which channels were assigned the contribution |
 
 ### Setup steps
 
 1. Configure the `conversion_clause` macro to filter your raw Snowplow events to successful conversion events.
 2. Configure the `conversion_value` macro to return the value of the conversion event.
 3. Configure the default `channel_classification` macro to yield your expected channels. The ROAS calculations / attribution calculations will run against these channel definitions.
+4. Configure environment variables to be used by the `connection_parameters` in the `main_snowplow_snowflake.py` file to connect to Snowflake.
 
 ### Running
 
 1. Ensure the setup steps have been completed above.
 2. Run `dbt run`, or `dbt run --select package:fractribution`
-
+3. Run the python script, e.g. `python utils/main_snowplow_snowflake.py --conversion_window_start_date '2022-06-03' --conversion_window_end_date '2022-08-01'` (see [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for further details)
 
 ### Differences to Fractribution
 
