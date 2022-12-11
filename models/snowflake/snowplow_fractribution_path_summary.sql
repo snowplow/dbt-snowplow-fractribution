@@ -1,3 +1,9 @@
+{{ 
+  config(
+    sql_header=snowplow_utils.set_query_tag(var('snowplow__query_tag', 'snowplow_dbt'))
+  ) 
+}}
+
 WITH PathsToConversion AS (
   SELECT transformedPath, COUNT(*) AS conversions, SUM(revenue) AS revenue
   FROM

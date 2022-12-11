@@ -69,9 +69,9 @@ The models produced by the Python script are the following:
 2. Run `dbt run`, or `dbt run --select package:fractribution`
 3. Run the python script, e.g. `python utils/main_snowplow_snowflake.py --conversion_window_start_date '2022-06-03' --conversion_window_end_date '2022-08-01'` (see [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for further details)
 
-### Differences to Fractribution
+### Differences to Google's Fractribution
 
-There are some changes from the [original](https://github.com/google/fractribution) Fractribution code that have been noted below.
+There are some changes from [Google's](https://github.com/google/fractribution) Fractribution code that have been noted below.
 
 - Temporary UDFs have been converted to persistent / permanent UDFs
 - Some temporary tables converted to permanent tables

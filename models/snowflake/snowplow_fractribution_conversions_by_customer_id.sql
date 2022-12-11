@@ -1,3 +1,9 @@
+{{ 
+  config(
+    sql_header=snowplow_utils.set_query_tag(var('snowplow__query_tag', 'snowplow_dbt'))
+  ) 
+}}
+
 SELECT
     CASE
         WHEN events.user_id IS NOT NULL AND events.user_id != '' THEN 'u' || events.user_id -- use event user_id
