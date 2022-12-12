@@ -48,9 +48,9 @@ The package contains multiple models that are used by the Python script for the 
 | snowplow_fractribution_paths_to_non_conversion | Customer id and the the paths the customer has followed that have not lead to conversion|
 | snowplow_fractribution_sessions_by_customer_id | Channels per session by customer id|
 
-The models produced by the Python script are the following:
+The tables produced by the Python script are the following:
 
-| Model                                      | Description                                                                           |
+| Table                                      | Description                                                                           |
 | ------------------------------------------ | ------------------------------------------------------------------------------------- |
 | snowplow_fractribution_report_table        | The main output table that shows conversions, revenue, spend and ROAS per channel.
 | snowplow_fractribution_channel_attribution | The conversion and revenue attribution per channel (used to create the report table).
