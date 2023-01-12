@@ -63,8 +63,8 @@ def _extract_channels(client, params: Mapping[str, Any]) -> List[str]:
     """
 
     channels = [row.CHANNEL for row in client]
-    if fractribution.UNMATCHED_CHANNEL not in channels:
-        channels.append(fractribution.UNMATCHED_CHANNEL)
+    # if fractribution.UNMATCHED_CHANNEL not in channels:
+    #     channels.append(fractribution.UNMATCHED_CHANNEL)
     for channel in channels:
         if not _is_valid_column_name(channel):
             raise ValueError("Channel is not a legal Snowflake column name: ", channel)
