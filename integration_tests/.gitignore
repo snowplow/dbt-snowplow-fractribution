@@ -1,10 +1,8 @@
 
 target/
 dbt_modules/
-dbt_packages/
 logs/
 .DS_Store
 venv/
 dbt-service-account.json
 .vscode/settings.json
-__pycache__

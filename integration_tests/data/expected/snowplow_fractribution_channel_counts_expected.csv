@@ -1,0 +1,10 @@
+channel,campaign,source,medium,number_of_sessions
+Direct,(not set),(direct),(none),45
+Organic_Search,(not set),google,organic,40
+Paid_Search_Other,AW - Accessories,google,cpc,2
+Paid_Search_Other,AW - Dynamic Search Ads Whole Site,google,cpc,1
+Referral,(not set),support.google.com,referral,2
+Referral,(not set),analytics.google.com,referral,2
+Referral,(not set),quora.com,referral,1
+Unmatched_Channel,Data Share Promo,Partners,affiliate,1
+Video,(not set),youtube.com,referral,3
