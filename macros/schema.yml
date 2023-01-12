@@ -2,16 +2,48 @@ version: 2
 
 macros:
   - name: channel_classification
-    description: A macro used to perform channel classifications
-
+    description: '{{ doc("macro_channel_classification") }}'
   - name: channel_spend
-    description: A macro for the user to overwrite it with a sql script to extract total ad spend by channel
-
+    description: '{{ doc("macro_channel_spend") }}'
   - name: conversion_clause
-    description: A macro to specify how to filter on conversion events
-
+    description: '{{ doc("macro_conversion_clause") }}'
   - name: conversion_value
-    description: A macro that specifies either a single column or a calculated value that represents the value associated with the conversion
-
+    description: '{{ doc("macro_conversion_value") }}'
+  - name: get_lookback_date_limits
+    description: '{{ doc("macro_get_lookback_date_limits") }}'
+    arguments:
+      - name: limit_type
+        type: string
+        description: Can be either 'min' or 'max' depending on if the upper or lower boundary date needs to be returned
   - name: create_udfs
-    description: A macro which creates user defined functions that will be used in the models
+    description: '{{ doc("macro_create_udfs") }}'
+  - name: path_transformation
+    description: '{{ doc("macro_path_transformation") }}'
+    arguments:
+      - name: transformation_type
+        type: string
+        description: >
+          A type of transformation that needs to be executed E.g. 'unique_path'.
+          Needs to be one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path
+          More details here https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/dbt-models/dbt-fractribution-data-model/#path-transform-options
+      - name: transform_param
+        type: string
+        description: (Optional) The parameter value that the path transormation needs to execute,. Default none
+  - name: transform_paths
+    description: '{{ doc("macro_transform_paths") }}'
+    arguments:
+      - name: model_type
+        type: string
+        description: The macro only expects 'conversions' in case it runs in the path_to_conversions in which case it adds more fields
+      - name: source_cte
+        type: string
+        description: The name of the cte to take as an input for the macro the build sql to
+  - name: trim_long_path
+    description: '{{ doc("macro_trim_long_path") }}'
+    arguments:
+      - name: array_column
+        type: string
+        description: The array column to be transformed
+      - name: lookback_steps
+        type: integer
+        description: Defaulted to be taken from the snowplow__path_lookback_steps, the number of path to leave starting from the end

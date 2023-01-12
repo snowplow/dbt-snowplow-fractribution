@@ -1,6 +1,6 @@
-[![early-release]][tracker-classification] 
+[![early-release]][tracker-classification]
 [![Release][release-image]][releases]
-[![License][license-image]][license] 
+[![License][license-image]][license]
 [![Discourse posts][discourse-image]][discourse]
 
 ![snowplow-logo](https://raw.githubusercontent.com/snowplow/dbt-snowplow-utils/main/assets/snowplow_logo.png)
@@ -10,13 +10,13 @@
 This dbt package:
 - Uses page view and conversion events to perform fractional marketing attribution (fractribution) on your Snowplow data.
 - Is used in conjunction with a Python script or Docker image to create the final output table.
-- Is designed to be customized, allowing you to easily make modifications to suit your data and objectives. 
+- Is designed to be customized, allowing you to easily make modifications to suit your data and objectives.
 
 Please refer to the [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for a full breakdown of the package. To run this package with detailed instructions and example data, see the [fractribution accelerator](https://docs.snowplow.io/accelerators/snowplow_fractribution/).
 
 ### Adapter Support
 
-The snowplow-fractribution v0.1.0 package currently supports Snowflake. 
+The snowplow-fractribution v0.1.0 package currently supports Snowflake.
 
 |      Warehouse     |    dbt versions     | snowplow-fractribution version |
 | :----------------: | :-----------------: | :----------------------------: |
@@ -61,17 +61,28 @@ The tables produced by the Python script are the following:
 
 ### Setup steps
 
-1. Configure the `conversion_clause` macro to filter your raw Snowplow events to successful conversion events.
-2. Configure the `conversion_value` macro to return the value of the conversion event.
-3. Configure the default `channel_classification` macro to yield your expected channels. The ROAS calculations / attribution calculations will run against these channel definitions.
-4. Configure environment variables to be used by the `connection_parameters` in the `main_snowplow_snowflake.py` file to connect to Snowflake.
-5. Overwrite default variables provided by the package in your dbt_project.yml file, if necessary. E.g.: make sure your `page_views_source` and `conversions_source` are aligned to what is available in your warehouse.
+1. Fractribution is dependent on the snowplow_web_page_views model created by the snowplow_web dbt package. Run snowplow_web if you do not have data in the snowplow_web_page_views table for the period of time you will run fractribution for.
+2. Configure the `conversion_clause` macro to filter your raw Snowplow events to successful conversion events.
+3. Configure the `conversion_value` macro to return the value of the conversion event.
+4. Configure the default `channel_classification` macro to yield your expected channels. The ROAS calculations / attribution calculations will run against these channel definitions.
 
-### Running
+5. Configure the channel_spend macro to query your own spend data if you do not wish to use the default values.
+6. Configure environment variables to be used by the python file specific to your warehouse (either `main_snowplow_bigquery.py`, `main_snowplow_databricks.py` or `main_snowplow_snowflake.py`) to enable you to connect.
+7. Overwrite default variables provided by the package in your dbt_project.yml file, if necessary. E.g.: make sure your `snowplow__page_views_source` and `snowplow__conversions_source` are aligned to what is available in your warehouse, and update snowplow__conversion_window_start_date and snowplow__conversion_window_end_date if you don't want the default of the last 30 days.​
+
+### Running (for detailed instructions check out the [Quick Start](/docs/modeling-your-data/modeling-your-data-with-dbt/dbt-quickstart/index.md)) section)
 
 1. Ensure the setup steps have been completed above.
-2. Run `dbt run`, or `dbt run --select package:fractribution`
-3. Run the python script, e.g. `python utils/main_snowplow_snowflake.py --conversion_window_start_date '2022-06-03' --conversion_window_end_date '2022-08-01'` (see [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for further details)
+2. Run `dbt run`, or `dbt run --select package:fractribution`.
+3. To run the Python scripts, there are two options: Using a Docker image, or running the Python scripts yourself in a virtual environment.
+For Python:
+I. Set up your python virtual environment based on utils/requirements.txt.
+II. Configure you environment variables needed for the scripts to run (you can refer to the warehouse specific env list in the Dockerfile - `dbt-snowplow-fractribution/utils/Dockerfile`)
+III. Run the correct python script for the data warehouse you are using, e.g. `python utils/main_snowplow_snowflake.py --conversion_window_start_date '2022-06-03' --conversion_window_end_date '2022-08-01'` for Snowflake, or `python utils/main_snowplow_bigquery.py --conversion_window_start_date '2022-06-03' --conversion_window_end_date '2022-08-01'` for Bigquery. Set these conversion_window dates to represent the last 30 days if you left these variables blank in the dbt_project.yml file. You can optionally add the attribution_model flag if you do not want the default of shapley.
+For Docker:
+I. Ensure you have Docker installed. Pull the docker image from Docker Hub: `docker pull snowplow/fractribution`
+II. Add the necessary environment variables to an environment file, e.g. configs.env. The necessary variables will differ depending on the data warehouse you are using. The easiest way to determine the variables you need to set is to check the Dockerfile in the fractribution dbt package: `dbt-snowplow-fractribution/utils/Dockerfile`
+III. Run the docker container: `docker run --rm --env-file /path/to/env/file/configs.env -it snowplow/fractribution`. If you are using Bigquery, mount your service account keyfile as a volume: `docker run --rm --env-file /path/to/env/file/configs.env -v /path/to/yourkeyfile.json:/keyfile.json -it snowplow/fractribution​​`
 
 ### Differences to Google's Fractribution
 
@@ -82,11 +93,11 @@ There are some changes from [Google's](https://github.com/google/fractribution) 
 - Users without a user_id are treated as 'anonymous' ('f') users and the domain_userid is used to identify these sessions
 - Users with a user_id are treated as identified ('u') users
 - Templating is now run almost entirely within dbt rather than the custom SQL / Jinja templating in the original Fractribution project
-- Channel changes and contributions within a session can be considered using the `consider_intrasession_channels` variable.
+- Channel changes and contributions within a session can be considered using the `snowplow__consider_intrasession_channels` variable.
 
 ### Intrasession channels
 
-In Google Analytics (Universal Analytics) a new session is started if a campaign source changes (referrer of campaign tagged URL) which is used in Fractribution. Snowplow utilises activity based sessionisation rather than campaign based sessionisation. Setting `consider_intrasession_channels` to `false` will take only the campaign information from the first page view in a given Snowplow session and not give credit to other channels in the converting session if they occur after the initial page view. 
+In Google Analytics (Universal Analytics) a new session is started if a campaign source changes (referrer of campaign tagged URL) which is used in Fractribution. Snowplow utilises activity based sessionisation rather than campaign based sessionisation. Setting `snowplow__consider_intrasession_channels` to `false` will take only the campaign information from the first page view in a given Snowplow session and not give credit to other channels in the converting session if they occur after the initial page view.
 
 # Join the Snowplow community
 

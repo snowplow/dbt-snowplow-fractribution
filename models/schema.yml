@@ -10,7 +10,7 @@ sources:
     schema: derived
     tables:
       - name: snowplow_web_page_views
-        
+
 models:
   - name: snowplow_fractribution_channel_counts
     description: Number of sessions per channel, campaign, source and medium
@@ -29,32 +29,32 @@ models:
   - name: snowplow_fractribution_conversions_by_customer_id
     description: Each conversion and associated revenue per customer_id
     columns:
-      - name: customerId
+      - name: customer_id
         description: Identifier for the customer, 'f' prefixed when domain_userid is used, 'u' prefixed for when user_id is used (logged in?)
       - name: conversionTimestamp
         description: UTC timestamp for the conversion
       - name: revenue
         description: Revenue (dollars / cents) for the conversion
-      
+
 
   - name: snowplow_fractribution_path_summary
     description: For each unique path, a summary of associated conversions, non conversions and revenue
     columns:
-      - name: transformedPath
+      - name: transformed_path
         description: "> delimited path summary"
       - name: conversions
         description: Count of conversions for this path
-      - name: nonConversions
+      - name: non_conversions
         description: Count of non-conversions for path
       - name: revenue
         description: Revenue for the given path
       - name: direct_display_other_organic_search_paid_search_referral
-        description: These columns may be created dynamically... 
+        description: These columns may be created dynamically...
 
   - name: snowplow_fractribution_paths_to_conversion
     description: Customer id and the the paths the customer has followed that have lead to conversion
     columns:
-      - name: customerId
+      - name: customer_id
         description: Id for the customer (identified or cookie)
       - name: conversionTimestamp
         description: UTC timestamp for the conversion event
@@ -62,30 +62,30 @@ models:
         description: Revenue associated with the conversion
       - name: path
         description: Path to conversion (> delimited)
-      - name: transformedPath
+      - name: transformed_path
         description: Transformations applied to "path" above
 
   - name: snowplow_fractribution_paths_to_non_conversion
     description: Customer id and the the paths the customer has followed that have not lead to conversion
     columns:
-      - name: customerId
+      - name: customer_id
         description: Id for the customer (identified or cookie)
       - name: path
         description: Path to conversion (> delimited)
-      - name: transformedPath
+      - name: transformed_path
         description: Transformations applied to "path" above
 
   - name: snowplow_fractribution_sessions_by_customer_id
     description: >
-      Channels per session by customer id, yields one row per session unless consider_intrasession_channels is true
+      Channels per session by customer id, yields one row per session unless snowplow__consider_intrasession_channels is true
     columns:
-      - name: customerId
+      - name: customer_id
         description: Customer id
-      - name: visitStartTimestamp
+      - name: visit_start_tstamp
         description: UTC timestamp for the start of the session
       - name: channel
         description: Channel
-      - name: referralPath
+      - name: referral_path
         description: Referall path for the session
       - name: campaign
         description: Marketing campaign
@@ -93,4 +93,3 @@ models:
         description: Marketing source
       - name: medium
         description: Marketing medium
-      

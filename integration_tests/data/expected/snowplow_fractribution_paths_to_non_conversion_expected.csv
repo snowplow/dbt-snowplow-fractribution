@@ -1,0 +1,62 @@
+customer_id,path,transformed_path
+ff0006815897690710127,Direct,Direct
+ff0008516451556988836,Organic_Search,Organic_Search
+ff0008002859848957047,Direct,Direct
+ff0006868928608298442,Direct,Direct
+ff0006076063596333312,Organic_Search,Organic_Search
+ff0008445904614093244,Referral > Referral,Referral
+ff0008400240750229593,Organic_Search,Organic_Search
+ff0006105689495040365,Direct,Direct
+ff0007617910709180468,Organic_Search,Organic_Search
+ff0006382859119186989,Organic_Search,Organic_Search
+ff0010008615736299869,Direct,Direct
+ff0005218289010224492,Organic_Search > Organic_Search,Organic_Search
+ff0008270607146019741,Organic_Search,Organic_Search
+ff0005155024128173191,Direct > Direct,Direct
+ff0004630813247957288,Referral > Referral,Referral
+ff0006303242278669196,Organic_Search,Organic_Search
+ff0005976006355074104,Paid_Search_Other,Paid_Search_Other
+ff0005012088711421541,Organic_Search > Organic_Search > Organic_Search > Organic_Search,Organic_Search
+ff0008154080682876178,Organic_Search,Organic_Search
+ff0007260999864359424,Direct,Direct
+ff0010128547217795991,Direct,Direct
+ff0008418751493134631,Organic_Search,Organic_Search
+ff0008006235732072443,Organic_Search,Organic_Search
+ff0010021742562916751,Direct,Direct
+ff0005217557029264485,Direct,Direct
+ff0005886397510055781,Organic_Search,Organic_Search
+ff0009646097795253665,Direct,Direct
+ff0005161507453446864,Direct,Direct
+ff0005727158140978336,Organic_Search,Organic_Search
+ff0008001620682515252,Direct,Direct
+ff0006116115850000567,Organic_Search,Organic_Search
+ff0009064744171354998,Organic_Search,Organic_Search
+ff0006154611242644046,Organic_Search,Organic_Search
+ff0009813277534087064,Direct,Direct
+ff0008662309515059378,Direct,Direct
+ff000764690711450337,Direct,Direct
+ff0007185453079383287,Organic_Search,Organic_Search
+ff0005034651978311076,Organic_Search,Organic_Search
+ff0008282421281332761,Organic_Search,Organic_Search
+ff001008498851594413,Video,Video
+ff0008254883062403392,Organic_Search,Organic_Search
+ff0007200705342233584,Direct,Direct
+ff0008718126389168135,Direct,Direct
+ff0005266036840836647,Direct,Direct
+ff0005340071405394531,Organic_Search > Direct,Organic_Search > Direct
+ff0009652493179228822,Direct,Direct
+ff0006191747463833846,Organic_Search > Paid_Search_Other,Organic_Search > Paid_Search_Other
+ff0008621367574321111,Organic_Search,Organic_Search
+ff0005612190234672200,Direct,Direct
+ff0007217636457888039,Organic_Search > Organic_Search,Organic_Search
+ff0009798924529710538,Video,Video
+ff000568240730995345,Direct,Direct
+ff0008708493573668829,Direct > Direct,Direct
+ff0008275880593050809,Referral > Direct,Referral > Direct
+ff0005824625668645180,Direct,Direct
+ff0007546617543121379,Direct,Direct
+ff0005389021394935994,Organic_Search,Organic_Search
+ff0008984643240974463,Unmatched_Channel,Unmatched_Channel
+ff0006934260685095413,Organic_Search,Organic_Search
+ff0005799509354614014,Organic_Search,Organic_Search
+ff0004497876110531212,Organic_Search > Paid_Search_Other,Organic_Search > Paid_Search_Other

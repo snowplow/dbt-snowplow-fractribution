@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: snowplow_fractribution_channel_counts_actual
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('snowplow_fractribution_channel_counts_expected_stg')
+      - dbt_utils.equality:
+          compare_model: ref('snowplow_fractribution_channel_counts_expected_stg')
+  - name: snowplow_fractribution_channel_spend_actual
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('snowplow_fractribution_channel_spend_expected_stg')
+      - dbt_utils.equality:
+          compare_model: ref('snowplow_fractribution_channel_spend_expected_stg')
+  - name: snowplow_fractribution_conversions_by_customer_id_actual
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('snowplow_fractribution_conversions_by_customer_id_expected_stg')
+      - dbt_utils.equality:
+          compare_model: ref('snowplow_fractribution_conversions_by_customer_id_expected_stg')
+  - name: snowplow_fractribution_path_summary_actual
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('snowplow_fractribution_path_summary_expected_stg')
+      - dbt_utils.equality:
+          compare_model: ref('snowplow_fractribution_path_summary_expected_stg')
+  - name: snowplow_fractribution_paths_to_conversion_actual
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('snowplow_fractribution_paths_to_conversion_expected_stg')
+      - dbt_utils.equality:
+          compare_model: ref('snowplow_fractribution_paths_to_conversion_expected_stg')
+  - name: snowplow_fractribution_paths_to_non_conversion_actual
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('snowplow_fractribution_paths_to_non_conversion_expected_stg')
+      - dbt_utils.equality:
+          compare_model: ref('snowplow_fractribution_paths_to_non_conversion_expected_stg')
+  - name: snowplow_fractribution_sessions_by_customer_id_actual
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('snowplow_fractribution_sessions_by_customer_id_expected_stg')
+      - dbt_utils.equality:
+          compare_model: ref('snowplow_fractribution_sessions_by_customer_id_expected_stg')
