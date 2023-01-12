@@ -11,10 +11,10 @@ SELECT
             WHEN user_mapping.domain_userid IS NOT NULL THEN 'u' || user_mapping.user_id
         {% endif %}
         ELSE 'f' || page_views.domain_userid
-    END AS customerId, -- f (anonymous) or u (identifier) prefixed user identifier
-    derived_tstamp AS visitStartTimestamp, -- we consider the event timestamp to be the session start, rather than the session start timestamp
+    END AS customer_id, -- f (anonymous) or u (identifier) prefixed user identifier
+    derived_tstamp AS visit_start_tstamp, -- we consider the event timestamp to be the session start, rather than the session start timestamp
     {{ channel_classification() }} AS channel,
-    refr_urlpath AS referralPath,
+    refr_urlpath AS referral_path,
     mkt_campaign AS campaign,
     mkt_source AS source,
     mkt_medium AS medium

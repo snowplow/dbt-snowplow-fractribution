@@ -1,7 +1,7 @@
-{{ 
+{{
   config(
     sql_header=snowplow_utils.set_query_tag(var('snowplow__query_tag', 'snowplow_dbt'))
-  ) 
+  )
 }}
 
 SELECT
@@ -11,8 +11,8 @@ SELECT
             WHEN user_mapping.domain_userid IS NOT NULL THEN 'u' || user_mapping.user_id
         {% endif %}
         ELSE 'f' || events.domain_userid
-    END AS customerId,
-    derived_tstamp AS conversionTimestamp,
+    END AS customer_id,
+    derived_tstamp AS conversion_tstamp,
     {{ conversion_value() }} AS revenue
 FROM
     {{ var('conversions_source' )}} AS events
@@ -25,12 +25,12 @@ FROM
 WHERE
     {{ conversion_clause() }}
     AND
-    DATE(derived_tstamp) >= CASE WHEN '{{ var('conversion_window_start_date') }}' = '' 
+    DATE(derived_tstamp) >= CASE WHEN '{{ var('conversion_window_start_date') }}' = ''
                                 THEN current_date()-31
                                 ELSE '{{ var('conversion_window_start_date') }}'
                                 END
     AND
-    DATE(derived_tstamp) <= CASE WHEN '{{ var('conversion_window_end_date') }}' = '' 
+    DATE(derived_tstamp) <= CASE WHEN '{{ var('conversion_window_end_date') }}' = ''
                                 THEN current_date()-1
                                 ELSE '{{ var('conversion_window_end_date') }}'
                                 END

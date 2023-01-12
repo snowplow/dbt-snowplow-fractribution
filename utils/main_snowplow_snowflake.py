@@ -23,7 +23,7 @@ from absl.flags import argparse_flags
 import fractribution
 
 from snowflake.snowpark import Session  # snowflake support
-from snowflake.snowpark.types import DecimalType, StructField, StructType, StringType, IntegerType 
+from snowflake.snowpark.types import DecimalType, StructField, StructType, StringType, IntegerType
 
 
 connection_parameters = {
@@ -110,7 +110,7 @@ def get_channels(session):
 
 def get_path_summary_data(session):
     query = """
-        SELECT transformedPath, CAST(conversions AS FLOAT) AS conversions, CAST(nonConversions AS float) AS nonConversions, CAST(revenue AS float) AS revenue
+        SELECT transformed_path, CAST(conversions AS FLOAT) AS conversions, CAST(nonConversions AS float) AS nonConversions, CAST(revenue AS float) AS revenue
         FROM snowplow_fractribution_path_summary
         """
 
@@ -154,8 +154,8 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
     types = [
         StructField("revenue", DecimalType(10,2)),
         StructField("conversions", DecimalType(10,3)),
-        StructField("nonConversions", DecimalType(10,3)),
-        StructField("transformedPath", StringType())
+        StructField("non_conversions", DecimalType(10,3)),
+        StructField("transformed_path", StringType())
     ]
 
     # exclude revenue, conversions, nonConversions, transformedPath
@@ -176,8 +176,8 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
     rows = []
     for channel, attribution in channel_to_attribution.items():
         row = {
-            "conversionWindowStartDate": conversion_window_start_date,
-            "conversionWindowEndDate": conversion_window_end_date,
+            "conversion_window_start_date": conversion_window_start_date,
+            "conversion_window_end_date": conversion_window_end_date,
             "channel": channel,
             "conversions": attribution,
             "revenue": channel_to_revenue.get(channel, 0.0),
