@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2022 Snowplow, Google LLC..
+# Copyright 2022-2023 Snowplow, Google LLC..
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -264,9 +264,9 @@ class Fractribution(object):
         bytesio = io.BytesIO()
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             row = {
-                "transformedPath": self._get_path_string(path_tuple),
+                "transformed_path": self._get_path_string(path_tuple),
                 "conversions": path_summary.conversions,
-                "nonConversions": path_summary.non_conversions,
+                "non_conversions": path_summary.non_conversions,
                 "revenue": path_summary.revenue,
             }
             if path_summary.channel_to_attribution:
@@ -282,9 +282,9 @@ class Fractribution(object):
         rows = []
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             row = {
-                "transformedPath": self._get_path_string(path_tuple),
+                "transformed_path": self._get_path_string(path_tuple),
                 "conversions": path_summary.conversions,
-                "nonConversions": path_summary.non_conversions,
+                "non_conversions": path_summary.non_conversions,
                 "revenue": path_summary.revenue,
             }
             if path_summary.channel_to_attribution:

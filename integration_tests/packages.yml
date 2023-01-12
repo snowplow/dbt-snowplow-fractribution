@@ -1,0 +1,6 @@
+packages:
+  - local: ../
+  - package: snowplow/snowplow_utils
+    version: [">=0.13.1", "<0.14.0"]
+  - package: snowplow/snowplow_web
+    version: [">=0.13.0", "<0.14.0"]
