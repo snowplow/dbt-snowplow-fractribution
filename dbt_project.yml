@@ -30,7 +30,7 @@ vars:
   path_lookback_days: 30 # Restrict to marketing channels within this many days of the conversion (recommended: 30 / 14 / 7)
   path_transforms: [['Exposure', null]] # array of path transforms (and their arguments) to perform on the full conversion path (see udfs.sql)
   consider_intrasession_channels: false # false = only considers the channel at the start (first page view) of the session, true = consider multiple channels in the conversion session as well as historical channels
-  channels_to_exclude: ['Direct', 'Unmatched_Channel'] # Channels to exclude before creating path summaries (and therefore excluded from fractribution analysis)
+  channels_to_exclude: [] # Channels to exclude before creating path summaries (and therefore excluded from fractribution analysis), e.g. ['Direct']
   use_snowplow_web_user_mapping_table: false # true if using the Snowplow base model for web user mappings (domain_userid => user_id)
 
 # Overwrite these source table vars in your own dbt_project.yml if not using these defaults:

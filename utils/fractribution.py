@@ -20,8 +20,6 @@ import json
 import re
 from typing import Iterable, List, Mapping, Tuple
 
-# Default channel name when no match is found.
-# UNMATCHED_CHANNEL = "Unmatched_Channel"
 
 
 class _PathSummary(object):
@@ -263,7 +261,6 @@ class Fractribution(object):
     def _path_summary_to_json_stringio(self) -> io.BytesIO:
         """Returns a BytesIO file with one JSON-encoded _PathSummary per line."""
 
-        # default_attribution = {UNMATCHED_CHANNEL: 1.0}
         bytesio = io.BytesIO()
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             row = {
@@ -274,8 +271,6 @@ class Fractribution(object):
             }
             if path_summary.channel_to_attribution:
                 row.update(path_summary.channel_to_attribution)
-            # else:
-            #     row.update(default_attribution)
             bytesio.write(json.dumps(row).encode("utf-8"))
             bytesio.write("\n".encode("utf-8"))
         bytesio.flush()
@@ -284,7 +279,6 @@ class Fractribution(object):
 
     def _path_summary_to_list(self) -> List:
         """Returns a list with list _PathSummary per line."""
-        # default_attribution = {UNMATCHED_CHANNEL: 1.0}
         rows = []
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             row = {
@@ -295,8 +289,6 @@ class Fractribution(object):
             }
             if path_summary.channel_to_attribution:
                 row.update(path_summary.channel_to_attribution)
-            # else:
-            #     row.update(default_attribution)
             rows.append(row)
 
         return rows
@@ -307,12 +299,10 @@ class Fractribution(object):
         Returns:
           Mapping from channel to overall conversion attribution.
         """
-        # default_attribution = {UNMATCHED_CHANNEL: 1.0}
         overall_channel_to_attribution = {}
         for path_summary in self._path_tuple_to_summary.values():
             channel_to_attribution = path_summary.channel_to_attribution
-            # if not channel_to_attribution:
-            #     channel_to_attribution = default_attribution
+
             for channel, attribution in channel_to_attribution.items():
                 overall_channel_to_attribution[channel] = (
                     overall_channel_to_attribution.get(channel, 0.0)
@@ -326,12 +316,9 @@ class Fractribution(object):
         Returns:
           Mapping from channel to overall revenue attribution.
         """
-        # default_attribution = {UNMATCHED_CHANNEL: 1.0}
         overall_channel_to_revenue = {}
         for path_summary in self._path_tuple_to_summary.values():
             channel_to_attribution = path_summary.channel_to_attribution
-            # if not channel_to_attribution:
-            #     channel_to_attribution = default_attribution
             revenue = path_summary.revenue
             if not revenue:
                 revenue = 0.0
