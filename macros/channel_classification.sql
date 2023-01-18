@@ -7,6 +7,7 @@
     -- each channel should return a name that will also be a valid Snowflake column name
     -- by convention use underscores to separate
     -- (<251 characters, avoid spaces, leading numbers)
+    -- keep Unmatched_Channel as the default value for channels that are not matched by your case statement
 
     CASE
         WHEN

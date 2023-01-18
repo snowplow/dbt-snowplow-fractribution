@@ -20,8 +20,9 @@ SELECT
       {% if arg_str %}, {{arg_str}}{% endif %})
     {% endfor %}
     , ' > ') AS transformedPath
-FROM {{ ref('snowplow_fractribution_conversions_by_customer_id') }} con
-LEFT JOIN {{ ref('snowplow_fractribution_sessions_by_customer_id') }} se
+FROM 
+{{ ref('snowplow_fractribution_sessions_by_customer_id') }} se
+LEFT JOIN {{ ref('snowplow_fractribution_conversions_by_customer_id') }} con
   ON
     con.customerId = se.customerId
     AND DATEDIFF(day, visitStartTimestamp, conversionTimestamp)
