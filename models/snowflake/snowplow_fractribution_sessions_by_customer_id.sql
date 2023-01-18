@@ -57,4 +57,14 @@ WHERE
         -- yields one row per session (last touch)
         AND page_view_in_session_index = 1 -- takes the first page view in the session
     {% endif %}
+    
+    {% if var('channels_to_exclude') %}
+        -- Filters out any unwanted channels
+        AND channel NOT IN (
+            {%- for unwanted_channel in var('channels_to_exclude') %}
+                '{{ unwanted_channel }}'
+                {%- if not loop.last %},{% endif %}
+            {%- endfor %}
+        )
+    {% endif %}
 
