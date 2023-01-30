@@ -25,6 +25,8 @@ models:
     bind: false
     +schema: "snplw_fractribution_int_tests"
     source:
+      bigquery:
+        +enabled: "{{ target.type == 'bigquery' | as_bool() }}"
       databricks:
         +enabled: "{{ target.type in ['databricks', 'spark'] | as_bool() }}"
       snowflake:
@@ -55,8 +57,8 @@ vars:
     consider_intrasession_channels: false
     events_table: 'sample_events_fractribution'
     atomic_schema: 'dbt_agnes_scratch'
-    page_views_schema: 'dbt_agnes_derived'
-    page_views_source: "dbt_agnes_derived.snowplow_web_page_views"
+    page_views_schema: '{{schema}}'
+    page_views_source: '{{schema}}.snowplow_web_page_views'
     conversions_source: "{{ ref('snowplow_fractribution_events_stg') }}"
 
 seeds:

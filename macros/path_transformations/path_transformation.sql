@@ -1,11 +1,20 @@
-/* Macro to remove complexity from models paths_to_conversion / paths_to_non_conversion. */
-
 {% macro path_transformation(transformation_type, transform_param, source_table) %}
   {{ return(adapter.dispatch('path_transformation', 'snowplow_fractribution')(transformation_type, transform_param, source_table)) }}
 {% endmacro %}
 
-
+-- only used for integration tests
 {% macro default__path_transformation(transformation_type, transform_param, source_table) %}
+
+    {{schema}}.{{transformation_type}}(
+
+      transformed_path
+
+    {% if transform_param %}, '{{transform_param}}' {% endif %}
+    )
+
+{% endmacro %}
+
+{% macro databricks__path_transformation(transformation_type, transform_param, source_table) %}
 
   {% if transformation_type == 'unique_path' %}
     transformed_path
@@ -34,18 +43,5 @@
     {%- do exceptions.raise_compiler_error("Snowplow Warning: the path transform - '"+transformation_type+"' - is not yet supported for Databricks. Please choose from the following: exposure_path, first_path, remove_if_not_all, unique_path") %}
 
   {% endif %}
-
-{% endmacro %}
-
-
--- only used for integration tests
-{% macro snowflake__path_transformation(transformation_type, transform_param, source_table) %}
-
-    {{schema}}.{{transformation_type}}(
-
-      transformed_path
-
-    {% if transform_param %}, '{{transform_param}}' {% endif %}
-    )
 
 {% endmacro %}

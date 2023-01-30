@@ -13,13 +13,25 @@ with prep as (
   from {{ ref('snowplow_fractribution_sessions_by_customer_id_expected') }}
 )
 
+, modify_wrong_time as (
+  select
+    customer_id,
+    {{ dateadd('hour', '1', 'visit_start_tstamp') }} as visit_start_tstamp,
+      channel,
+    referral_path,
+    campaign,
+    source,
+    medium
+
+from prep)
+
 select
   customer_id,
-  {{ dateadd('hour', '1', 'visit_start_tstamp') }} as visit_start_tstamp,
-    channel,
+  cast(visit_start_tstamp as {{ dbt.type_timestamp() }})  as visit_start_tstamp,
+  channel,
   referral_path,
   campaign,
   source,
   medium
 
-from prep
+from modify_wrong_time

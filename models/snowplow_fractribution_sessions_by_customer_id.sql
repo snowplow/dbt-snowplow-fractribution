@@ -30,15 +30,9 @@ from {{ var('page_views_source') }}  page_views
   on page_views.domain_userid = user_mapping.domain_userid
 {% endif %}
 
-where date(derived_tstamp) >= dateadd(day, -{{ var('path_lookback_days') + 1 }},
-                                case when '{{ var('conversion_window_start_date') }}' = ''
-                                then current_date()-31
-                                else '{{ var('conversion_window_start_date') }}'
-                                end)
-    and date(derived_tstamp) <= case when '{{ var('conversion_window_end_date') }}' = ''
-                                then current_date()-1
-                                else '{{ var('conversion_window_end_date') }}'
-                                end
+where date(derived_tstamp) >= '{{ get_lookback_date_limits('min') }}'
+
+    and date(derived_tstamp) <= '{{ get_lookback_date_limits('max') }}'
 
     and page_urlhost in (
         {%- for urlhost in var('conversion_hosts') %}

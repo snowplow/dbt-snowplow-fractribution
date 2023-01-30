@@ -37,7 +37,7 @@
       from {{ ref('snowplow_fractribution_channel_counts') }}
   )
 
-  , unnest as (
+  , unnesting as (
 
       {{ snowplow_utils.unnest('id', 'c', 'channel', 'channels') }}
   )
@@ -46,6 +46,6 @@
     channel,
     10000 as spend
 
-  from unnest
+  from unnesting
 
 {% endmacro %}

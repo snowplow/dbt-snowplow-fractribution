@@ -4,8 +4,50 @@
   {{ return(adapter.dispatch('transform_paths', 'snowplow_fractribution')(model_type)) }}
 {% endmacro %}
 
-
 {% macro default__transform_paths(model_type) %}
+
+  {% set allowed_path_transforms = ['exposure_path', 'first_path', 'frequency_path', 'remove_if_last_and_not_all', 'remove_if_not_all', 'unique_path'] %}
+
+  , path_transforms as (
+
+     select
+        customer_id,
+        {% if model_type == 'conversions' %}
+        conversion_tstamp,
+        revenue,
+        {% endif %}
+        {{ trim_long_path('path') }} as path,
+
+    {% if var('path_transforms').items()|length > 0 %}
+
+      {% for path_transform_name, _ in var('path_transforms').items()|reverse %}
+        {% if path_transform_name not in allowed_path_transforms %}
+          {%- do exceptions.raise_compiler_error("Snowplow Warning: the path transform - '"+path_transform_name+"' - is not supported. Please refer to the Snowplow docs on tagging. Please use one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path") %}
+        {% endif %}
+        {{schema}}.{{path_transform_name}}(
+      {% endfor %}
+
+      transformed_path
+
+      {% for _, transform_param in var('path_transforms').items()|reverse %}
+        {% if transform_param %}, '{{transform_param}}' {% endif %}
+        )
+      {% endfor %}
+
+      as transformed_path
+
+    {% else %}
+     transformed_path
+    {% endif %}
+
+  from arrays
+
+  )
+
+{% endmacro %}
+
+
+{% macro databricks__transform_paths(model_type) %}
 
   {% set total_transformations = var('path_transforms').items()|length %}
   {% set loop_count = namespace(value=1) %}
@@ -78,50 +120,6 @@
   {% else %}
     from arrays
   {% endif %}
-  )
-
-{% endmacro %}
-
-
-
-{% macro snowflake__transform_paths(model_type) %}
-
-  {% set allowed_path_transforms = ['exposure_path', 'first_path', 'frequency_path', 'remove_if_last_and_not_all', 'remove_if_not_all', 'unique_path'] %}
-
-  , path_transforms as (
-
-     select
-        customer_id,
-        {% if model_type == 'conversions' %}
-        conversion_tstamp,
-        revenue,
-        {% endif %}
-        {{ trim_long_path('path') }} as path,
-
-    {% if var('path_transforms').items()|length > 0 %}
-
-      {% for path_transform_name, _ in var('path_transforms').items()|reverse %}
-        {% if path_transform_name not in allowed_path_transforms %}
-          {%- do exceptions.raise_compiler_error("Snowplow Warning: the path transform - '"+path_transform_name+"' - is not supported. Please refer to the Snowplow docs on tagging. Please use one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path") %}
-        {% endif %}
-        {{schema}}.{{path_transform_name}}(
-      {% endfor %}
-
-      transformed_path
-
-      {% for _, transform_param in var('path_transforms').items()|reverse %}
-        {% if transform_param %}, '{{transform_param}}' {% endif %}
-        )
-      {% endfor %}
-
-      as transformed_path
-
-    {% else %}
-     transformed_path
-    {% endif %}
-
-  from arrays
-
   )
 
 {% endmacro %}

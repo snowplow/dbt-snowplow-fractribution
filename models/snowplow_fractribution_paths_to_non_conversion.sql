@@ -45,7 +45,7 @@ with conversions as (
     and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }}  >= 0
     and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }} <= {{ var('path_lookback_days') }}
 
-{% if target.type in ['snowflake'] -%}
+{% if target.type in ['snowflake', 'bigquery'] -%}
   group by 1
 {%- endif %}
 
