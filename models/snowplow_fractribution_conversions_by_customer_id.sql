@@ -1,0 +1,32 @@
+{{
+  config(
+    sql_header=snowplow_utils.set_query_tag(var('snowplow__query_tag', 'snowplow_dbt'))
+  )
+}}
+
+select
+  case when events.user_id is not null and events.user_id != '' then 'u' || events.user_id -- use event user_id
+    {% if var('use_snowplow_web_user_mapping_table') %}
+       when user_mapping.domain_userid is not null then 'u' || user_mapping.user_id
+    {% endif %}
+       else 'f' || events.domain_userid
+  end as customer_id,
+  derived_tstamp as conversion_tstamp,
+  {{ conversion_value() }} as revenue
+
+from {{ var('conversions_source' )}} as events
+
+{% if var('use_snowplow_web_user_mapping_table') %}
+  left join {{ var('snowplow_web_user_mapping_table') }} as user_mapping
+    on events.domain_userid = user_mapping.domain_userid
+{% endif %}
+
+where {{ conversion_clause() }}
+  and date(derived_tstamp) >= case when '{{ var('conversion_window_start_date') }}' = ''
+                                then current_date()-31
+                                else '{{ var('conversion_window_start_date') }}'
+                                end
+  and date(derived_tstamp) <= case when '{{ var('conversion_window_end_date') }}' = ''
+                                then current_date()-1
+                                else '{{ var('conversion_window_end_date') }}'
+                                end

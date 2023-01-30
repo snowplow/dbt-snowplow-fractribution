@@ -26,9 +26,10 @@ vars:
   conversion_window_start_date: '' # conversion window start date
   conversion_window_end_date: '' # conversion window end date is dynamically set to current_date()-1 in the code
   conversion_hosts: ['poplindata.com'] # url_hosts to consider
+  path_transforms: {'exposure_path': null} # dictionary of path transforms (and their argument, null if none) to perform on the full conversion path (see udfs.sql)
   path_lookback_steps: 0 # Limit for the number of marketing channels to look at before the conversion (0 = unlimited)
   path_lookback_days: 30 # Restrict to marketing channels within this many days of the conversion (recommended: 30 / 14 / 7)
-  path_transforms: [['Exposure', null]] # array of path transforms (and their arguments) to perform on the full conversion path (see udfs.sql)
+
   consider_intrasession_channels: false # false = only considers the channel at the start (first page view) of the session, true = consider multiple channels in the conversion session as well as historical channels
   channels_to_exclude: [] # Channels to exclude before creating path summaries (and therefore excluded from fractribution analysis), e.g. ['Direct']
   use_snowplow_web_user_mapping_table: false # true if using the Snowplow base model for web user mappings (domain_userid => user_id)

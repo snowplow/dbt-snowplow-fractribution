@@ -12,6 +12,3 @@ macros:
 
   - name: conversion_value
     description: A macro that specifies either a single column or a calculated value that represents the value associated with the conversion
-
-  - name: create_udfs
-    description: A macro which creates user defined functions that will be used in the models
