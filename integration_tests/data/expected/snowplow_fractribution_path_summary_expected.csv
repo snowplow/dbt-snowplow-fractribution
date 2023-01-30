@@ -1,0 +1,10 @@
+transformed_path,conversions,non_conversions,revenue
+Direct,3,25,94.42
+Organic_Search,2,26,206.5
+Referral,0,2,
+Paid_Search_Other,0,1,
+Video,1,2,200.0
+Organic_Search > Direct,0,1,
+Organic_Search > Paid_Search_Other,0,2,
+Referral > Direct,0,1,
+Unmatched_Channel,0,1,
