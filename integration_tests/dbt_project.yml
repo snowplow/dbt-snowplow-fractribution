@@ -161,7 +161,7 @@ seeds:
           se_value: float
           tr_orderid: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
           tr_affiliation: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
-          tr_total: float
+          tr_total: decimal(10,2)
           tr_tax: float
           tr_shipping: float
           tr_city: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"

@@ -68,7 +68,7 @@ select
   se_value,
   tr_orderid,
   tr_affiliation,
-  case when left(tr_total,5) = 20.42 then 20.42 else tr_total end tr_total,
+  tr_total,
   tr_tax,
   tr_shipping,
   tr_city,
