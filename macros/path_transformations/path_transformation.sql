@@ -1,9 +1,9 @@
-{% macro path_transformation(transformation_type, transform_param, source_table) %}
-  {{ return(adapter.dispatch('path_transformation', 'snowplow_fractribution')(transformation_type, transform_param, source_table)) }}
+{% macro path_transformation(transformation_type, transform_param) %}
+  {{ return(adapter.dispatch('path_transformation', 'snowplow_fractribution')(transformation_type, transform_param)) }}
 {% endmacro %}
 
 -- only used for integration tests
-{% macro default__path_transformation(transformation_type, transform_param, source_table) %}
+{% macro default__path_transformation(transformation_type, transform_param) %}
 
     {{schema}}.{{transformation_type}}(
 
@@ -14,7 +14,7 @@
 
 {% endmacro %}
 
-{% macro databricks__path_transformation(transformation_type, transform_param, source_table) %}
+{% macro databricks__path_transformation(transformation_type, transform_param) %}
 
   {% if transformation_type == 'unique_path' %}
     transformed_path
@@ -26,7 +26,7 @@
     array_distinct(transformed_path)
 
   {% elif transformation_type == 'exposure_path' %}
-    filter(transformed_path, ({{ source_table }}, i) -> {{ source_table }} != transformed_path[i-1] or i == 0)
+    filter(transformed_path, (x, i) -> x != transformed_path[i-1] or i == 0)
 
   {% elif transformation_type == 'remove_if_not_all' %}
     case when array_distinct(transformed_path) != array('{{ transform_param }}')
@@ -36,7 +36,7 @@
   {% elif transformation_type == 'remove_if_last_and_not_all' %}
     case when array_distinct(transformed_path) != array('{{ transform_param }}')
     then slice(transformed_path, 1, array_size(transformed_path) - array_size(
-    filter(transformed_path, ({{ source_table }}, i) -> array_except(slice(reverse(transformed_path), 1, i), array('{{ transform_param }}'))==array()) ) + 1)
+    filter(transformed_path, (x, i) -> array_except(slice(reverse(transformed_path), 1, i), array('{{ transform_param }}'))==array()) ) + 1)
     else transformed_path end
 
   {% else %}
