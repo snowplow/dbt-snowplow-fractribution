@@ -18,6 +18,10 @@ with data as (
 
   select '' as path
 
+  union all
+
+  select 'Example, Video, Direct' as path
+
 )
 
 , make_it_array as (

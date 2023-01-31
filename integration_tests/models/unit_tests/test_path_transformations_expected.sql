@@ -58,6 +58,18 @@ with expected_result as (
     '' as remove_if_not_all,
     '' as remove_if_last_and_not_all
 
+  union all
+
+  select
+    'Example, Video, Direct' as raw_array,
+    'Direct' as trim_long_path,
+    'Example, Video, Direct' as unique_path,
+    'Example(1), Video(1), Direct(1)' as frequency_path,
+    'Example, Video, Direct' as exposure_path,
+    'Example, Video, Direct' as first_path,
+    'Example, Video' as remove_if_not_all,
+    'Example, Video' as remove_if_last_and_not_all
+
 )
 
 , arrays as (
