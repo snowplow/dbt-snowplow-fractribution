@@ -260,7 +260,7 @@
   RETURNS ARRAY
   LANGUAGE JAVASCRIPT AS $$
     var transformedPath = [];
-    for (var i = 0; i < path.length; i++) {
+    for (var i = 0; i < PATH.length; i++) {
       if (i == 0 || PATH[i] != PATH[i-1]) {
         transformedPath.push(PATH[i]);
       }
