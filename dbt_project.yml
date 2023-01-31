@@ -41,7 +41,7 @@ vars:
   # snowplow_web_user_mapping_table: derived.snowplow_web_user_mapping # path (schema and table) in to the Snowplow web user mapping table (BigQuery)
 
 
-on-run-start: "{{ create_udfs() }}"
+on-run-start: "{{ create_udfs('_derived') }}"
 models:
   snowplow_fractribution:
     +schema: "derived"

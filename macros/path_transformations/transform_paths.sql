@@ -24,7 +24,7 @@
         {% if path_transform_name not in allowed_path_transforms %}
           {%- do exceptions.raise_compiler_error("Snowplow Warning: the path transform - '"+path_transform_name+"' - is not supported. Please refer to the Snowplow docs on tagging. Please use one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path") %}
         {% endif %}
-        {{schema}}.{{path_transform_name}}(
+        {{target.schema}}.{{path_transform_name}}(
       {% endfor %}
 
       transformed_path
@@ -73,19 +73,19 @@
           {{ path_transformation('unique_path') }} as transformed_path
 
         {% elif path_transform_name == 'frequency_path' %}
-          {{ path_transformation('frequency_path', '', 'transformation_' + previous_cte.value|string) }} as transformed_path
+          {{ path_transformation('frequency_path', '') }} as transformed_path
 
         {% elif path_transform_name == 'first_path' %}
           {{ path_transformation('first_path') }} as transformed_path
 
         {% elif path_transform_name == 'exposure_path' %}
-          {{ path_transformation('exposure_path', '', 'transformation_' + previous_cte.value|string) }} as transformed_path
+          {{ path_transformation('exposure_path', '') }} as transformed_path
 
         {% elif path_transform_name == 'remove_if_not_all' %}
           {{ path_transformation('remove_if_not_all', transform_param) }} as transformed_path
 
         {% elif path_transform_name == 'remove_if_last_and_not_all' %}
-          {{ path_transformation('remove_if_last_and_not_all', transform_param, 'transformation_' + previous_cte.value|string) }} as transformed_path
+          {{ path_transformation('remove_if_last_and_not_all', transform_param) }} as transformed_path
 
         {% else %}
           {%- do exceptions.raise_compiler_error("Snowplow Warning: the path transform - '"+path_transform_name+"' - is not supported. Please refer to the Snowplow docs on tagging. Please use one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path") %}

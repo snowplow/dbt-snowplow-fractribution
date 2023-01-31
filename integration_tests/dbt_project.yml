@@ -57,8 +57,8 @@ vars:
     consider_intrasession_channels: false
     events_table: 'sample_events_fractribution'
     atomic_schema: 'dbt_agnes_scratch'
-    page_views_schema: '{{schema}}'
-    page_views_source: '{{schema}}.snowplow_web_page_views'
+    page_views_schema: '{{target.schema}}'
+    page_views_source: '{{target.schema}}_derived.snowplow_web_page_views'
     conversions_source: "{{ ref('snowplow_fractribution_events_stg') }}"
 
 seeds:
@@ -161,7 +161,7 @@ seeds:
           se_value: float
           tr_orderid: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
           tr_affiliation: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
-          tr_total: decimal(10,2)
+          tr_total: "{{ 'float' if target.type in ['bigquery'] else 'decimal(10,2)' }}"
           tr_tax: float
           tr_shipping: float
           tr_city: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
@@ -236,4 +236,5 @@ seeds:
         source: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
         medium: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
 
-on-run-start: "{{ create_udfs() }}"
+on-run-start:
+  - "{{ snowplow_fractribution.create_udfs('_snplw_fractribution_int_tests') }}"

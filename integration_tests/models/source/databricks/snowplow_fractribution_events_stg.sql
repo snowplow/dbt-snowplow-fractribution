@@ -138,6 +138,6 @@ select
   event_fingerprint,
   true_tstamp,
   load_tstamp,
-  contexts_com_snowplowanalytics_snowplow_web_page_1_0_0
+  contexts_com_snowplowanalytics_snowplow_web_page_1
 
 from prep

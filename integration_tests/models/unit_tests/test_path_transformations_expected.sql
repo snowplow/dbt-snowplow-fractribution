@@ -88,13 +88,13 @@ with expected_result as (
 )
 
 select
-  to_json_string(raw_array) as raw_array,
-  to_json_string(trim_long_path) as trim_long_path,
-  to_json_string(unique_path) as unique_path,
-  to_json_string(frequency_path) as frequency_path,
-  to_json_string(exposure_path) as exposure_path,
-  to_json_string(first_path) as first_path,
-  to_json_string(remove_if_not_all) as remove_if_not_all,
-  to_json_string(remove_if_last_and_not_all) as remove_if_last_and_not_all
+  {{ snowplow_utils.get_array_to_string('raw_array', 'a', delimiter=', ') }} as raw_array,
+  {{ snowplow_utils.get_array_to_string('trim_long_path', 'a', delimiter=', ') }} as trim_long_path,
+  {{ snowplow_utils.get_array_to_string('unique_path', 'a', delimiter=', ') }} as unique_path,
+  {{ snowplow_utils.get_array_to_string('frequency_path', 'a', delimiter=', ') }} as frequency_path,
+  {{ snowplow_utils.get_array_to_string('exposure_path', 'a', delimiter=', ') }} as exposure_path,
+  {{ snowplow_utils.get_array_to_string('first_path', 'a', delimiter=', ') }} as first_path,
+  {{ snowplow_utils.get_array_to_string('remove_if_not_all', 'a', delimiter=', ') }} as remove_if_not_all,
+  {{ snowplow_utils.get_array_to_string('remove_if_last_and_not_all', 'a', delimiter=',') }} as remove_if_last_and_not_all
 
-from arrays
+from arrays a
