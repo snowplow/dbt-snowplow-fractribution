@@ -16,3 +16,4 @@ Supported warehouses:
 
 - snowflake
 - databricks
+- bigquery
