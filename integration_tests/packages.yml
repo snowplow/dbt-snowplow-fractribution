@@ -1,4 +1,5 @@
 packages:
   - local: ../
-  - git: "https://github.com/snowplow/dbt-snowplow-web.git"
-    revision: "feature/consent-adapter-support"
+  - git: "https://github.com/snowplow/dbt-snowplow-utils.git"
+    revision: "fix/cross_db_macros"
+
