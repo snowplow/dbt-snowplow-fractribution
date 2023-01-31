@@ -1,4 +1,31 @@
 {% macro get_lookback_date_limits(limit_type) %}
+  {{ return(adapter.dispatch('get_lookback_date_limits', 'snowplow_fractribution')(limit_type)) }}
+{% endmacro %}
+
+{% macro default__get_lookback_date_limits(limit_type) %}
+
+  -- check if web data is up-to-date
+
+  {% set query %}
+    with base as (
+      select max(start_tstamp) max_start_tstamp
+      from {{ var('page_views_source') }}
+    )
+
+    select
+      case when max_start_tstamp  < '{{ var('conversion_window_end_date') }}'
+      then True else False end as is_over_limit
+    from base
+  {% endset %}
+
+  {% set result = run_query(query) %}
+
+  {% if execute %}
+    {% set page_view_max = result[0][0] %}
+    {% if page_view_max == True %}
+      {%- do exceptions.raise_compiler_error("Snowplow Warning: the derived.page_view source does not cover the full fractribution analysis period. Please process your web model first before proceeding with this package.") %}
+    {% endif %}
+  {% endif %}
 
   {% if limit_type == 'min' %}
 
