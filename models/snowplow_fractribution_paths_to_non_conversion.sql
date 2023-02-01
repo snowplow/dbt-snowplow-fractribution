@@ -62,7 +62,7 @@ with conversions as (
 
 )
 
-{{ transform_paths('non_conversions') }}
+{{ transform_paths('non_conversions', 'arrays') }}
 
 select
   customer_id,

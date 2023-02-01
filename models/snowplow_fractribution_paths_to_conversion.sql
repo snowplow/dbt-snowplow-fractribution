@@ -41,7 +41,7 @@ with string_aggs as (
 
 )
 
-{{ transform_paths('conversions') }}
+{{ transform_paths('conversions', 'arrays') }}
 
 select
   customer_id,

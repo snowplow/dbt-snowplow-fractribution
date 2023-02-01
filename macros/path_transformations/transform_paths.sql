@@ -1,10 +1,10 @@
 /* Macro to remove complexity from models paths_to_conversion / paths_to_non_conversion. */
 
-{% macro transform_paths(model_type) %}
-  {{ return(adapter.dispatch('transform_paths', 'snowplow_fractribution')(model_type)) }}
+{% macro transform_paths(model_type, source_cte) %}
+  {{ return(adapter.dispatch('transform_paths', 'snowplow_fractribution')(model_type, source_cte)) }}
 {% endmacro %}
 
-{% macro default__transform_paths(model_type) %}
+{% macro default__transform_paths(model_type, source_cte) %}
 
   {% set allowed_path_transforms = ['exposure_path', 'first_path', 'frequency_path', 'remove_if_last_and_not_all', 'remove_if_not_all', 'unique_path'] %}
 
@@ -40,14 +40,14 @@
      transformed_path
     {% endif %}
 
-  from arrays
+  from {{ source_cte }}
 
   )
 
 {% endmacro %}
 
 
-{% macro databricks__transform_paths(model_type) %}
+{% macro databricks__transform_paths(model_type, source_cte) %}
 
   {% set total_transformations = var('path_transforms').items()|length %}
   {% set loop_count = namespace(value=1) %}
@@ -92,7 +92,7 @@
         {% endif %}
 
         {%- if loop_count.value == 1 %}
-         from arrays
+         from {{ source_cte }}
          )
         {% else %}
          from transformation_{{ previous_cte|string }}
@@ -118,7 +118,7 @@
     from transformation_{{ total_transformations }}
 
   {% else %}
-    from arrays
+    from {{ source_cte }}
   {% endif %}
   )
 
