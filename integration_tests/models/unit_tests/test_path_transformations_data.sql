@@ -22,6 +22,10 @@ with data as (
 
   select 'Example, Video, Direct' as path
 
+  union all
+
+  select 'Example, Video, ' as path
+
 )
 
 , make_it_array as (

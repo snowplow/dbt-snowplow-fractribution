@@ -1,5 +1,6 @@
 with expected_result as (
 
+-- test remove_if_last_and_not_all (if not all the same)
   select
     'Example, Video, Direct, Direct' as raw_array,
     'Direct' as trim_long_path,
@@ -13,6 +14,7 @@ with expected_result as (
 
   union all
 
+-- test remove_if_last_and_not_all (if all the same)
   select
     'Direct, Direct' as raw_array,
     'Direct' as trim_long_path,
@@ -26,6 +28,7 @@ with expected_result as (
 
   union all
 
+-- test frequency_path with a long and varied, repeated pattern
   select
     'a, a, a, Direct, a, Direct, Direct' as raw_array,
     'Direct' as trim_long_path,
@@ -39,6 +42,7 @@ with expected_result as (
 
   union all
 
+-- test one member scenario
   select
     'Direct' as raw_array,
     'Direct' as trim_long_path,
@@ -52,6 +56,7 @@ with expected_result as (
 
   union all
 
+-- test empty string scenario
   select
     '' as raw_array,
     '' as trim_long_path,
@@ -65,6 +70,7 @@ with expected_result as (
 
   union all
 
+-- test all different scenario
   select
     'Example, Video, Direct' as raw_array,
     'Direct' as trim_long_path,
@@ -75,6 +81,20 @@ with expected_result as (
     'Example, Video, Direct' as first_path,
     'Example, Video' as remove_if_not_all,
     'Example, Video' as remove_if_last_and_not_all
+
+  union all
+
+-- test mixed in with emtpy strings scenario
+  select
+    'Example, Video,' as raw_array,
+    '' as trim_long_path,
+    'Video,' as trim_long_path2,
+    'Example, Video,' as unique_path,
+    'Example(1), Video(1), (1)' as frequency_path,
+    'Example, Video,' as exposure_path,
+    'Example, Video,' as first_path,
+    'Example, Video,' as remove_if_not_all,
+    'Example, Video,' as remove_if_last_and_not_all
 
 )
 
