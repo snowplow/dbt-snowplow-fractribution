@@ -55,9 +55,6 @@ vars:
     path_lookback_days: 30
     path_transforms:  {'exposure_path': null}
     consider_intrasession_channels: false
-    events_table: 'sample_events_fractribution'
-    atomic_schema: 'dbt_agnes_scratch'
-    page_views_schema: '{{target.schema}}'
     page_views_source: '{{target.schema}}_derived.snowplow_web_page_views'
     conversions_source: "{{ ref('snowplow_fractribution_events_stg') }}"
 
