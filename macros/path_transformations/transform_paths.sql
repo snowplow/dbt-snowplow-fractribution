@@ -22,7 +22,7 @@
 
       {% for path_transform_name, _ in var('path_transforms').items()|reverse %}
         {% if path_transform_name not in allowed_path_transforms %}
-          {%- do exceptions.raise_compiler_error("Snowplow Warning: the path transform - '"+path_transform_name+"' - is not supported. Please refer to the Snowplow docs on tagging. Please use one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path") %}
+          {%- do exceptions.raise_compiler_error("Snowplow Error: the path transform - '"+path_transform_name+"' - is not supported. Please refer to the Snowplow docs on tagging. Please use one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path") %}
         {% endif %}
         {{target.schema}}.{{path_transform_name}}(
       {% endfor %}
@@ -88,7 +88,7 @@
           {{ path_transformation('remove_if_last_and_not_all', transform_param) }} as transformed_path
 
         {% else %}
-          {%- do exceptions.raise_compiler_error("Snowplow Warning: the path transform - '"+path_transform_name+"' - is not supported. Please refer to the Snowplow docs on tagging. Please use one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path") %}
+          {%- do exceptions.raise_compiler_error("Snowplow Error: the path transform - '"+path_transform_name+"' - is not supported. Please refer to the Snowplow docs on tagging. Please use one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path") %}
         {% endif %}
 
         {%- if loop_count.value == 1 %}
