@@ -8,6 +8,7 @@ with raw_data as (
     select
       transformed_path as raw_array,
       {{ snowplow_fractribution.trim_long_path('transformed_path', 1) }} as trim_long_path,
+      {{ snowplow_fractribution.trim_long_path('transformed_path', 2) }} as trim_long_path2,
       {{ snowplow_fractribution.path_transformation('unique_path') }} as unique_path,
       {{ snowplow_fractribution.path_transformation('frequency_path', '') }} as frequency_path,
       {{ snowplow_fractribution.path_transformation('exposure_path', '') }} as exposure_path,
@@ -21,6 +22,7 @@ with raw_data as (
   select
     {{ snowplow_utils.get_array_to_string('raw_array', 'a', delimiter=', ') }} as raw_array,
     {{ snowplow_utils.get_array_to_string('trim_long_path', 'a', delimiter=', ') }} as trim_long_path,
+    {{ snowplow_utils.get_array_to_string('trim_long_path2', 'a', delimiter=', ') }} as trim_long_path2,
     {{ snowplow_utils.get_array_to_string('unique_path', 'a', delimiter=', ') }} as unique_path,
     {{ snowplow_utils.get_array_to_string('frequency_path', 'a', delimiter=', ') }} as frequency_path,
     {{ snowplow_utils.get_array_to_string('exposure_path', 'a', delimiter=', ') }} as exposure_path,
