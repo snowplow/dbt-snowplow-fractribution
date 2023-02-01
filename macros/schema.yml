@@ -3,12 +3,44 @@ version: 2
 macros:
   - name: channel_classification
     description: A macro used to perform channel classifications
-
   - name: channel_spend
     description: A macro for the user to overwrite it with a sql script to extract total ad spend by channel
-
   - name: conversion_clause
     description: A macro to specify how to filter on conversion events
-
   - name: conversion_value
     description: A macro that specifies either a single column or a calculated value that represents the value associated with the conversion
+  - name: get_lookback_date_limits
+    description: A macro returning the upper or lower boundary to limit what is processed by sessions_by_customer_id
+    arguments:
+      - name: limit_type
+        type: string
+        description: Can be either 'min' or 'max' depending on if the upper or lower boundary date needs to be returned
+  - name: create_udfs
+    description: Creates user defined functions for adapters apart from Databricks. It is executed as part of an on-start hook.
+  - name: path_transformation
+    description: Macro to execute the indvidual path_transformation specified as a parameter
+    arguments:
+      - name: transformation_type
+        type: string
+        description: A type of transformation that needs to be executed E.g. 'unique_path'
+      - name: transform_param
+        type: string
+        description: The parameter value that the path transormation needs to executes, which is optional
+  - name: transform_paths
+    description: Macro to remove complexity from models paths_to_conversion / paths_to_non_conversion
+    arguments:
+      - name: model_type
+        type: string
+        description: The macro only expects 'conversions' in case it runs in the path_to_conversions in which case it adds more fields
+      - name: source_cte
+        type: string
+        description: The name of the cte to take as an input for the macro the build sql to
+  - name: trim_long_path
+    description: Returns the last 'path_lookback_steps' number of channels in the path if path_lookback_steps > 0, or the full path otherwise
+    arguments:
+      - name: array_column
+        type: string
+        description: The array column to be transformed
+      - name: lookback_steps
+        type: integer
+        description: Defaulted to be taken from the path_lookback_steps, the number of path to leave starting from the end
