@@ -50,6 +50,7 @@
 {% macro databricks__transform_paths(model_type, source_cte) %}
 
   {% set total_transformations = var('path_transforms').items()|length %}
+  -- set loop_count using namespace to define it as global variable for the loop to work
   {% set loop_count = namespace(value=1) %}
 
   {% for path_transform_name, transform_param in var('path_transforms').items() %}
