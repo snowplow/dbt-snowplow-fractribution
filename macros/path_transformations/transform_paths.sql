@@ -16,7 +16,7 @@
         conversion_tstamp,
         revenue,
         {% endif %}
-        {{ trim_long_path('path') }} as path,
+        {{ trim_long_path('path', var('path_lookback_steps')) }} as path,
 
     {% if var('path_transforms').items()|length > 0 %}
 
@@ -111,7 +111,7 @@
       conversion_tstamp,
       revenue,
       {% endif %}
-      {{ trim_long_path('path') }} as path,
+      {{ trim_long_path('path', var('path_lookback_steps')) }} as path,
       transformed_path
 
   {% if total_transformations > 0 %}

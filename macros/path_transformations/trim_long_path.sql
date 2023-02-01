@@ -7,20 +7,15 @@
 
 {% macro default__trim_long_path(array_column, lookback_steps=var('path_lookback_steps')) %}
 
-  {{ target.schema }}.trim_long_path({{array_column}}, {{ lookback_steps }})
+  {{ target.schema }}.trim_long_path({{ array_column }}, {{ lookback_steps }})
 
 {% endmacro %}
 
 {% macro databricks__trim_long_path(array_column, lookback_steps=var('path_lookback_steps')) %}
 
-  {% if lookback_steps > 0 %}
-
-    slice(reverse({{ array_column }}), 1, (greatest(1, (cast({{ lookback_steps }} as int)))))
-
-  {% else %}
-
-    {{ array_column }}
-
-  {% endif %}
+  case when array_size({{ array_column }}) < {{ lookback_steps }} then {{ array_column }}
+  when {{ lookback_steps }} == 0 then {{ array_column }}
+  else slice({{ array_column }}, (-cast( {{lookback_steps }} as int)), (cast({{ lookback_steps }} as int)))
+  end
 
 {% endmacro %}
