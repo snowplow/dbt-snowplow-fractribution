@@ -180,7 +180,7 @@
   {% set trim_long_path %}
   -- Returns the last path_lookback_steps channels in the path if path_lookback_steps > 0,
   -- or the full path otherwise.
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.trim_long_path(path ARRAY, path_lookback_steps INTEGER)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.trim_long_path(path ARRAY, path_lookback_steps DOUBLE)
   RETURNS ARRAY LANGUAGE JAVASCRIPT AS $$
   if (PATH_LOOKBACK_STEPS > 0) {
       return PATH.slice(Math.max(0, PATH.length - PATH_LOOKBACK_STEPS));
