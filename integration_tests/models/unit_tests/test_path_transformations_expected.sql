@@ -86,15 +86,15 @@ with expected_result as (
 
 -- test mixed in with emtpy strings scenario
   select
-    'Example, Video,' as raw_array,
+    'Example, Video, ' as raw_array,
     '' as trim_long_path,
-    'Video,' as trim_long_path2,
-    'Example, Video,' as unique_path,
+    'Video, ' as trim_long_path2,
+    'Example, Video, ' as unique_path,
     'Example(1), Video(1), (1)' as frequency_path,
-    'Example, Video,' as exposure_path,
-    'Example, Video,' as first_path,
-    'Example, Video,' as remove_if_not_all,
-    'Example, Video,' as remove_if_last_and_not_all
+    'Example, Video, ' as exposure_path,
+    'Example, Video, ' as first_path,
+    'Example, Video, ' as remove_if_not_all,
+    'Example, Video, ' as remove_if_last_and_not_all
 
 )
 
@@ -123,6 +123,6 @@ select
   {{ snowplow_utils.get_array_to_string('exposure_path', 'a', delimiter=', ') }} as exposure_path,
   {{ snowplow_utils.get_array_to_string('first_path', 'a', delimiter=', ') }} as first_path,
   {{ snowplow_utils.get_array_to_string('remove_if_not_all', 'a', delimiter=', ') }} as remove_if_not_all,
-  {{ snowplow_utils.get_array_to_string('remove_if_last_and_not_all', 'a', delimiter=',') }} as remove_if_last_and_not_all
+  {{ snowplow_utils.get_array_to_string('remove_if_last_and_not_all', 'a', delimiter=', ') }} as remove_if_last_and_not_all
 
 from arrays a
