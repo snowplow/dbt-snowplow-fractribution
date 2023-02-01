@@ -232,6 +232,3 @@ seeds:
         campaign: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
         source: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
         medium: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
-
-on-run-start:
-  - "{{ snowplow_fractribution.create_udfs('_snplw_fractribution_int_tests') }}"

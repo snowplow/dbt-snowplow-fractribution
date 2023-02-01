@@ -7,7 +7,7 @@
 
 {% macro default__trim_long_path(array_column, lookback_steps=var('path_lookback_steps')) %}
 
-  {{ schema }}.trim_long_path({{array_column}}, {{ lookback_steps }})
+  {{ target.schema }}.trim_long_path({{array_column}}, {{ lookback_steps }})
 
 {% endmacro %}
 

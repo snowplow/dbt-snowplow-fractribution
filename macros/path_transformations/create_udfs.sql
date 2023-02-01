@@ -1,17 +1,17 @@
-{% macro create_udfs(schema_suffix = '_derived') %}
-  {{ return(adapter.dispatch('create_udfs', 'snowplow_fractribution')(schema_suffix)) }}
+{% macro create_udfs() %}
+  {{ return(adapter.dispatch('create_udfs', 'snowplow_fractribution')()) }}
 {% endmacro %}
 
-{% macro default__create_udfs(schema_suffix = '_derived') %}
+{% macro default__create_udfs() %}
 {% endmacro %}
 
 
-{% macro bigquery__create_udfs(schema_suffix = '_derived') %}
+{% macro bigquery__create_udfs() %}
 
   {% set trim_long_path %}
   -- Returns the last path_lookback_steps channels in the path if path_lookback_steps > 0,
   -- or the full path otherwise.
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.trim_long_path(path ARRAY<string>, path_lookback_steps integer)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.trim_long_path(path ARRAY<string>, path_lookback_steps integer)
   RETURNS ARRAY<string>
   LANGUAGE js
   as r"""
@@ -36,7 +36,7 @@
   {% set remove_if_not_all %}
   -- Returns the path with all copies of targetElem removed, unless the path consists only of
   -- targetElems, in which case the original path is returned.
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.remove_if_not_all(path ARRAY<string>, targetElem STRING)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.remove_if_not_all(path ARRAY<string>, targetElem STRING)
   RETURNS ARRAY<string>
   LANGUAGE js
   as r"""
@@ -56,7 +56,7 @@
   {% set remove_if_last_and_not_all %}
   -- Returns the path with all copies of targetElem removed from the tail, unless the path consists
   -- only of targetElems, in which case the original path is returned.
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.remove_if_last_and_not_all(path ARRAY<string>, targetElem STRING)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.remove_if_last_and_not_all(path ARRAY<string>, targetElem STRING)
   RETURNS ARRAY<string>
   LANGUAGE js
   as r"""
@@ -77,7 +77,7 @@
   {% set unique %}
   -- Returns the unique/identity transform of the given path array.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, B, C, D, C, C].
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.unique_path(path ARRAY<string>)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.unique_path(path ARRAY<string>)
   RETURNS ARRAY<string>
   LANGUAGE js
   as r"""
@@ -89,7 +89,7 @@
   -- Returns the exposure transform of the given path array.
   -- Sequential duplicates are collapsed.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C, D, C].
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.exposure_path(path ARRAY<string>)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.exposure_path(path ARRAY<string>)
   RETURNS ARRAY<string>
   LANGUAGE js
   as r"""
@@ -107,7 +107,7 @@
   -- Returns the first transform of the given path array.
   -- Repeated channels are removed.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C].
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.first_path(path ARRAY<string>)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.first_path(path ARRAY<string>)
   RETURNS ARRAY<string>
   LANGUAGE js
   as r"""
@@ -127,7 +127,7 @@
   -- Returns the frequency transform of the given path array.
   -- Repeat events are removed, but tracked with a count.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D(2), A(1), B(2), C(3)].
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.frequency_path(path ARRAY<string>)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.frequency_path(path ARRAY<string>)
   RETURNS ARRAY<string>
   LANGUAGE js
   as r"""
@@ -154,7 +154,7 @@
 
 
   {% set create_schema %}
-      create schema if not exists {{target.schema}}{{schema_suffix}};
+      create schema if not exists {{target.schema}};
   {% endset %}
 
   -- create the udfs (as permanent UDFs)
@@ -172,7 +172,7 @@
 {% endmacro %}
 
 
-{% macro databricks__create_udfs(schema_suffix = '_derived') %}
+{% macro databricks__create_udfs() %}
 {% endmacro %}
 
 {% macro snowflake__create_udfs(schema_suffix = '_derived') %}
@@ -180,7 +180,7 @@
   {% set trim_long_path %}
   -- Returns the last path_lookback_steps channels in the path if path_lookback_steps > 0,
   -- or the full path otherwise.
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.trim_long_path(path ARRAY, path_lookback_steps DOUBLE)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.trim_long_path(path ARRAY, path_lookback_steps DOUBLE)
   RETURNS ARRAY LANGUAGE JAVASCRIPT AS $$
   if (PATH_LOOKBACK_STEPS > 0) {
       return PATH.slice(Math.max(0, PATH.length - PATH_LOOKBACK_STEPS));
@@ -204,7 +204,7 @@
   {% set remove_if_not_all %}
   -- Returns the path with all copies of targetElem removed, unless the path consists only of
   -- targetElems, in which case the original path is returned.
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.remove_if_not_all(path ARRAY, targetElem STRING)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.remove_if_not_all(path ARRAY, targetElem STRING)
   RETURNS ARRAY
   LANGUAGE JAVASCRIPT AS $$
     var transformedPath = [];
@@ -223,7 +223,7 @@
   {% set remove_if_last_and_not_all %}
   -- Returns the path with all copies of targetElem removed from the tail, unless the path consists
   -- only of targetElems, in which case the original path is returned.
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.remove_if_last_and_not_all(path ARRAY, targetElem STRING)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.remove_if_last_and_not_all(path ARRAY, targetElem STRING)
   RETURNS ARRAY
   LANGUAGE JAVASCRIPT AS $$
     var tailIndex = PATH.length;
@@ -243,7 +243,7 @@
   {% set unique %}
   -- Returns the unique/identity transform of the given path array.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, B, C, D, C, C].
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.unique_path(path ARRAY)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.unique_path(path ARRAY)
   RETURNS ARRAY
   LANGUAGE JAVASCRIPT AS $$
     return PATH;
@@ -254,7 +254,7 @@
   -- Returns the exposure transform of the given path array.
   -- Sequential duplicates are collapsed.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C, D, C].
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.exposure_path(path ARRAY)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.exposure_path(path ARRAY)
   RETURNS ARRAY
   LANGUAGE JAVASCRIPT AS $$
     var transformedPath = [];
@@ -271,7 +271,7 @@
   -- Returns the first transform of the given path array.
   -- Repeated channels are removed.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C].
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.first_path(path ARRAY)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.first_path(path ARRAY)
   RETURNS ARRAY
   LANGUAGE JAVASCRIPT AS $$
     var transformedPath = [];
@@ -290,7 +290,7 @@
   -- Returns the frequency transform of the given path array.
   -- Repeat events are removed, but tracked with a count.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D(2), A(1), B(2), C(3)].
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}{{schema_suffix}}.frequency_path(path ARRAY)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.frequency_path(path ARRAY)
   RETURNS ARRAY
   LANGUAGE JAVASCRIPT AS $$
     var channelToCount = {};
@@ -316,7 +316,7 @@
 
 
   {% set create_schema %}
-      create schema if not exists {{target.schema}}{{schema_suffix}};
+      create schema if not exists {{target.schema}};
   {% endset %}
 
   -- create the udfs (as permanent UDFs)

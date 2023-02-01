@@ -5,7 +5,7 @@
 -- only used for integration tests
 {% macro default__path_transformation(transformation_type, transform_param) %}
 
-    {{schema}}.{{transformation_type}}(
+    {{target.schema}}.{{transformation_type}}(
 
       transformed_path
 
