@@ -13,7 +13,7 @@
 
 {% macro databricks__trim_long_path(array_column, lookback_steps=var('path_lookback_steps')) %}
 
-  case when array_size({{ array_column }}) < {{ lookback_steps }} then {{ array_column }}
+  case when array_size({{ array_column }}) <= {{ lookback_steps }} then {{ array_column }}
   when {{ lookback_steps }} == 0 then {{ array_column }}
   else slice({{ array_column }}, (-cast( {{lookback_steps }} as int)), (cast({{ lookback_steps }} as int)))
   end
