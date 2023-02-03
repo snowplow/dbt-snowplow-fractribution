@@ -34,9 +34,7 @@ with conversions as (
 
   select distinct
     n.customer_id,
-    {{ snowplow_utils.get_string_agg('channel', 's', separator=' > ', order_by_column='visit_start_tstamp', sort_numeric=false, partition_by_columns='n.customer_id', order_by_column_prefix='s') }} as path,
-    {{ snowplow_utils.get_string_agg('channel', 's', separator=' > ', order_by_column='visit_start_tstamp', sort_numeric=false, partition_by_columns='n.customer_id', order_by_column_prefix='s') }} as transformed_path
-
+    {{ snowplow_utils.get_string_agg('channel', 's', separator=' > ', order_by_column='visit_start_tstamp', sort_numeric=false, partition_by_columns='n.customer_id', order_by_column_prefix='s') }} as path
 
   from non_conversions n
 
@@ -56,7 +54,7 @@ with conversions as (
     select
       customer_id,
       {{ snowplow_utils.get_split_to_array('path', 's', ' > ') }} as path,
-      {{ snowplow_utils.get_split_to_array('transformed_path', 's', ' > ') }} as transformed_path
+      {{ snowplow_utils.get_split_to_array('path', 's', ' > ') }} as transformed_path
 
     from string_aggs s
 
