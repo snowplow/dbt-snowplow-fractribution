@@ -7,15 +7,8 @@
   -- check if web data is up-to-date
 
   {% set query %}
-    with base as (
-      select max(start_tstamp) max_start_tstamp
-      from {{ var('page_views_source') }}
-    )
-
-    select
-      case when max_start_tstamp  < '{{ var('conversion_window_end_date') }}'
-      then True else False end as is_over_limit
-    from base
+    select max(start_tstamp) < '{{ var('conversion_window_end_date') }}' as is_over_limit
+    from {{ var('page_views_source') }}
   {% endset %}
 
   {% set result = run_query(query) %}
@@ -27,42 +20,32 @@
     {% endif %}
   {% endif %}
 
-  {% if limit_type == 'min' %}
 
-    {% set query %}
-    with base as (select case when '{{ var('conversion_window_start_date') }}' = ''
-                then {{ dbt.dateadd('day', -31, dbt.current_timestamp()) }}
-                else '{{ var('conversion_window_start_date') }}'
-                end as min_date_time)
-    select cast({{ dbt.dateadd('day', (- var('path_lookback_days') + 1), 'min_date_time') }} as date) from base
 
-    {% endset %}
+  {% set query %}
+    {% if limit_type == 'min' %}
+      with base as (select case when '{{ var('conversion_window_start_date') }}' = ''
+                  then {{ dbt.dateadd('day', -31, dbt.current_timestamp()) }}
+                  else '{{ var('conversion_window_start_date') }}'
+                  end as min_date_time)
+      select cast({{ dbt.dateadd('day', (- var('path_lookback_days') + 1), 'min_date_time') }} as date) from base
 
-    {% set query_result = run_query(query) %}
 
-    {% if execute %}
-      {% set result = query_result[0][0] %}
-      {{ return(result) }}
+    {% elif limit_type == 'max' %}
+      with base as (select case when '{{ var('conversion_window_start_date') }}' = ''
+                  then {{ dbt.dateadd('day', -2, dbt.current_timestamp()) }}
+                  else '{{ var('conversion_window_end_date') }}'
+                  end as max_date_time)
+      select cast(max_date_time as date) from base
+    {% else %}
     {% endif %}
+  {% endset %}
 
-  {% elif limit_type == 'max' %}
+  {% set query_result = run_query(query) %}
 
-   {% set query %}
-    with base as (select case when '{{ var('conversion_window_start_date') }}' = ''
-                then {{ dbt.dateadd('day', -2, dbt.current_timestamp()) }}
-                else '{{ var('conversion_window_end_date') }}'
-                end as max_date_time)
-    select cast(max_date_time as date) from base
-    {% endset %}
-
-    {% set query_result = run_query(query) %}
-
-    {% if execute %}
-      {% set result = query_result[0][0] %}
-      {{ return(result) }}
-    {% endif %}
-
-  {% else %}
+  {% if execute %}
+    {% set result = query_result[0][0] %}
+    {{ return(result) }}
   {% endif %}
 
 {% endmacro %}
