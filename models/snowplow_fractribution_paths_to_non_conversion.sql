@@ -7,27 +7,18 @@
 -- Requires macro trim_long_path
 
 
-with conversions as (
-
-  select distinct customer_id
-
-  from {{ ref('snowplow_fractribution_conversions_by_customer_id') }}
-)
-
-, non_conversions as (
+with non_conversions as (
 
   select
-    s.customer_id,
-    max(s.visit_start_tstamp) as non_conversion_tstamp
+    customer_id,
+    max(visit_start_tstamp) as non_conversion_tstamp
 
   from {{ ref('snowplow_fractribution_sessions_by_customer_id') }} s
 
-  left join conversions c
-    on s.customer_id = c.customer_id
-
-  where c.customer_id is null
+  where not exists (select customer_id from {{ ref('snowplow_fractribution_conversions_by_customer_id') }} c where s.customer_id = c.customer_id)
 
   group by 1
+
 )
 
 , string_aggs as (
