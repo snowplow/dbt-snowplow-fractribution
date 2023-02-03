@@ -34,7 +34,9 @@
     else transformed_path end
 
   {% elif transformation_type == 'remove_if_last_and_not_all' %}
-    -- remove the matching path(s) from the tail unless it removes everything
+    /* remove the matching path(s) from the tail unless it removes everything (obtaining the upper boundary of the
+    slicing to do this is done by slicing the array and determining if it only contains the desired references which
+    it then returns an element for only if they are equivalent.) */
     case when array_distinct(transformed_path) != array('{{ transform_param }}')
     then slice(transformed_path, 1, array_size(transformed_path) - array_size(
     filter(transformed_path, (x, i) -> array_except(slice(reverse(transformed_path), 1, i), array('{{ transform_param }}'))==array()) ) + 1)
