@@ -11,7 +11,7 @@
 
 {% endmacro %}
 
-{% macro databricks__trim_long_path(array_column, lookback_steps=var('path_lookback_steps')) %}
+{% macro spark__trim_long_path(array_column, lookback_steps=var('path_lookback_steps')) %}
 
   case when array_size({{ array_column }}) <= {{ lookback_steps }} then {{ array_column }}
   when {{ lookback_steps }} == 0 then {{ array_column }}

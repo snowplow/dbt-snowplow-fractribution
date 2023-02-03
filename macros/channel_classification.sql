@@ -1,6 +1,6 @@
 /* Macro to perform channel classifications
-   each channel should return a name that will also be a valid Snowflake column name
-   by convention use underscores to separate <251 characters, avoid spaces, leading numbers) */
+   each channel should return a name that will also be a valid column name by convention use underscores, avoid spaces,
+   leading numbers) */
 
 {% macro channel_classification() %}
     {{ return(adapter.dispatch('channel_classification', 'snowplow_fractribution')()) }}

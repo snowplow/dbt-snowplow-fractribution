@@ -172,7 +172,7 @@
 {% endmacro %}
 
 
-{% macro databricks__create_udfs() %}
+{% macro spark__create_udfs() %}
 {% endmacro %}
 
 {% macro snowflake__create_udfs(schema_suffix = '_derived') %}

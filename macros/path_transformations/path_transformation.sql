@@ -14,7 +14,7 @@
 
 {% endmacro %}
 
-{% macro databricks__path_transformation(transformation_type, transform_param) %}
+{% macro spark__path_transformation(transformation_type, transform_param) %}
 
   {% if transformation_type == 'unique_path' %}
     transformed_path
