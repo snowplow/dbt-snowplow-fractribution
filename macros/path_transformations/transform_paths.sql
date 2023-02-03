@@ -20,6 +20,7 @@
 
     {% if var('path_transforms').items()|length > 0 %}
 
+      -- reverse transormation due to nested functions, items to be processed from left to right
       {% for path_transform_name, _ in var('path_transforms').items()|reverse %}
         {% if path_transform_name not in allowed_path_transforms %}
           {%- do exceptions.raise_compiler_error("Snowplow Error: the path transform - '"+path_transform_name+"' - is not supported. Please refer to the Snowplow docs on tagging. Please use one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path") %}
@@ -28,8 +29,8 @@
       {% endfor %}
 
       transformed_path
-
-      {% for _, transform_param in var('path_transforms').items()|reverse %}
+      -- no reverse needed due to nested nature of function calls
+      {% for _, transform_param in var('path_transforms').items() %}
         {% if transform_param %}, '{{transform_param}}' {% endif %}
         )
       {% endfor %}
@@ -53,10 +54,11 @@
   -- set loop_count using namespace to define it as global variable for the loop to work
   {% set loop_count = namespace(value=1) %}
 
+  -- unlike for adapters using UDFS, reverse transormation is not needed as ctes will process items their params in order
   {% for path_transform_name, transform_param in var('path_transforms').items() %}
 
     {%- if loop_count.value == 1 %}
-      {% set previous_cte = 'arrays' %}
+      {% set previous_cte = source_cte %}
     {% else %}
       {% set previous_cte = loop_count.value-1 %}
     {% endif %}
@@ -96,6 +98,7 @@
          from {{ source_cte }}
          )
         {% else %}
+        -- build cte names dynamically based on loop count / previous_cte for the loop to work regardless of array items
          from transformation_{{ previous_cte|string }}
          )
         {% endif %}
@@ -115,6 +118,7 @@
       {{ trim_long_path('path', var('path_lookback_steps')) }} as path,
       transformed_path
 
+  -- the last cte will always equal to the total transformations unless there is no item there
   {% if total_transformations > 0 %}
     from transformation_{{ total_transformations }}
 
