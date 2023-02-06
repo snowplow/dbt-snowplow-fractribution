@@ -102,8 +102,9 @@
          from transformation_{{ previous_cte|string }}
          )
         {% endif %}
+        {% set previous_cte = loop_count.value %}
         {% set loop_count.value = loop_count.value + 1 %}
-        {% set previous_cte = loop_count.value-1 %}
+
 
   {% endfor %}
 
