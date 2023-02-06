@@ -30,24 +30,29 @@ from {{ var('page_views_source') }}  page_views
   on page_views.domain_userid = user_mapping.domain_userid
 {% endif %}
 
-where date(derived_tstamp) >= '{{ get_lookback_date_limits('min') }}'
+where date(derived_tstamp) >= '{{ get_lookback_date_limits("min") }}'
 
-    and date(derived_tstamp) <= '{{ get_lookback_date_limits('max') }}'
+  and date(derived_tstamp) <= '{{ get_lookback_date_limits("max") }}'
 
-    and page_urlhost in (
-        {%- for urlhost in var('conversion_hosts') %}
-            '{{ urlhost }}'
-            {%- if not loop.last %},{% endif %}
-        {%- endfor %}
-    )
+  and
+    -- restrict to certain hostnames
+{% if var('conversion_hosts') in ('', [], '[]') or var('conversion_hosts') == None %}
+  {{ exceptions.raise_compiler_error("Error: var('conversion_host') needs to be set!") }}
+
+{% endif %}
+page_urlhost in ({{ snowplow_utils.print_list(var('conversion_hosts')) }})
 
 {% if var('consider_intrasession_channels') %}
-    -- yields one row per channel change
-    and mkt_medium is not null and mkt_medium != ''
+  -- yields one row per channel change
+  and mkt_medium is not null and mkt_medium != ''
 
 {% else %}
-    -- yields one row per session (last touch)
-    and page_view_in_session_index = 1 -- takes the first page view in the session
+  -- yields one row per session (last touch)
+  and page_view_in_session_index = 1 -- takes the first page view in the session
+{% endif %}
 
+{% if var('channels_to_exclude') %}
+    -- Filters out any unwanted channels
+    and channel not in ({{ snowplow_utils.print_list(var('channels_to_exclude')) }})
 {% endif %}
 
