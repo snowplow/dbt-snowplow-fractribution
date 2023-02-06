@@ -36,7 +36,7 @@ connection_parameters = {
     "schema": os.environ["snowflake_schema"],
 }
 
-_OUTPUT_TABLES = ["path_summary_table", "report_table"]
+_OUTPUT_TABLES = ["snowplow_fractribution_path_summary_with_channels", "snowplow_fractribution_report_table", "snowplow_fractribution_channel_attribution"]
 
 VALID_CHANNEL_NAME_PATTERN = re.compile(r"^[a-zA-Z_]\w+$", re.ASCII)
 
