@@ -28,7 +28,7 @@ macros:
           More details here https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/dbt-models/dbt-fractribution-data-model/#path-transform-options
       - name: transform_param
         type: string
-description: (Optional) The parameter value that the path transormation needs to execute,. Default none
+        description: (Optional) The parameter value that the path transormation needs to execute,. Default none
   - name: transform_paths
     description: '{{ doc("macro_transform_paths") }}'
     arguments:
