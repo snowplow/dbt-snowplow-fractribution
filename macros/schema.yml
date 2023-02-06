@@ -22,7 +22,10 @@ macros:
     arguments:
       - name: transformation_type
         type: string
-        description: A type of transformation that needs to be executed E.g. 'unique_path'
+        description: >
+          A type of transformation that needs to be executed E.g. 'unique_path'.
+          Needs to be one of the following: exposure_path, first_path, remove_if_not_all, unique_path
+          More details here https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/dbt-models/dbt-fractribution-data-model/#path-transform-options
       - name: transform_param
         type: string
         description: The parameter value that the path transormation needs to execute, which is optional
