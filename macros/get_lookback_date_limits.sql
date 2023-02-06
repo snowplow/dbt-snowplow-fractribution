@@ -24,16 +24,16 @@
 
   {% set query %}
     {% if limit_type == 'min' %}
-      with base as (select case when '{{ var('conversion_window_start_date') }}' = ''
+      with base as (select case when '{{ var("conversion_window_start_date") }}' = ''
                   then {{ dbt.dateadd('day', -31, dbt.current_timestamp()) }}
-                  else '{{ var('conversion_window_start_date') }}'
+                  else '{{ var("conversion_window_start_date") }}'
                   end as min_date_time)
       select cast({{ dbt.dateadd('day', (- var('path_lookback_days') + 1), 'min_date_time') }} as date) from base
 
 
     {% elif limit_type == 'max' %}
-      with base as (select case when '{{ var('conversion_window_start_date') }}' = ''
-                  then {{ dbt.dateadd('day', -2, dbt.current_timestamp()) }}
+      with base as (select case when '{{ var("conversion_window_start_date") }}' = ''
+                  then {{ dbt.dateadd('day', -1, dbt.current_timestamp()) }}
                   else '{{ var('conversion_window_end_date') }}'
                   end as max_date_time)
       select cast(max_date_time as date) from base

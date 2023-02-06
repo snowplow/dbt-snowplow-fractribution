@@ -22,11 +22,5 @@ from {{ var('conversions_source' )}} as events
 {% endif %}
 
 where {{ conversion_clause() }}
-  and date(derived_tstamp) >= case when '{{ var('conversion_window_start_date') }}' = ''
-                                then current_date()-31
-                                else '{{ var('conversion_window_start_date') }}'
-                                end
-  and date(derived_tstamp) <= case when '{{ var('conversion_window_end_date') }}' = ''
-                                then current_date()-1
-                                else '{{ var('conversion_window_end_date') }}'
-                                end
+  and date(derived_tstamp) >= '{{ get_lookback_date_limits("min") }}'
+  and date(derived_tstamp) <= '{{ get_lookback_date_limits("max") }}'
