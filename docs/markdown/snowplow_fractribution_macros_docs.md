@@ -204,9 +204,12 @@ The transformed array column.
 
 ```sql
 
-...
-{{ trim_long_path('path', var('path_lookback_steps')) }} as path,
-..
+select
+  ...
+  {{ trim_long_path('path', var('path_lookback_steps')) }} as path,
+  ...
+from 
+  ...
 
 ```
 {% endraw %}
