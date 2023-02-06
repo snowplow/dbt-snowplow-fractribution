@@ -195,10 +195,11 @@ The sql with the missing cte's that take care of path transformations.
 It is used by the transform_paths() macro for the transformation cte sql code build. It takes a transformation type as a parameter and its optional argument, if exists. The E.g.
 
 ```sql
+with base_data as (...),
 
-{% elif path_transform_name == 'first_path' %}
-          {{ path_transformation('first_path') }} as transformed_path
-
+{{ transform_paths('conversions', 'base_data') }}
+ 
+select * from path_transforms
 ```
 
 {% endraw %}
