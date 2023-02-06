@@ -266,7 +266,7 @@ class Fractribution(object):
             row = {
                 "transformedPath": self._get_path_string(path_tuple),
                 "conversions": path_summary.conversions,
-                "nonConversions": path_summary.non_conversions,
+                "non_conversions": path_summary.non_conversions,
                 "revenue": path_summary.revenue,
             }
             if path_summary.channel_to_attribution:
@@ -284,7 +284,7 @@ class Fractribution(object):
             row = {
                 "transformedPath": self._get_path_string(path_tuple),
                 "conversions": path_summary.conversions,
-                "nonConversions": path_summary.non_conversions,
+                "non_conversions": path_summary.non_conversions,
                 "revenue": path_summary.revenue,
             }
             if path_summary.channel_to_attribution:

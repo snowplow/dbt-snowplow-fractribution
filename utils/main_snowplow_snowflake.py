@@ -110,7 +110,7 @@ def get_channels(session):
 
 def get_path_summary_data(session):
     query = """
-        SELECT transformed_path, CAST(conversions AS FLOAT) AS conversions, CAST(nonConversions AS float) AS nonConversions, CAST(revenue AS float) AS revenue
+        SELECT transformed_path, CAST(conversions AS FLOAT) AS conversions, CAST(non_conversions AS float) AS non_conversions, CAST(revenue AS float) AS revenue
         FROM snowplow_fractribution_path_summary
         """
 
@@ -158,9 +158,9 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
         StructField("transformed_path", StringType())
     ]
 
-    # exclude revenue, conversions, nonConversions, transformedPath
+    # exclude revenue, conversions, non_conversions, transformedPath
     channel_to_attribution = frac._get_channel_to_attribution()
-    un = set(channel_to_attribution.keys()).difference(["revenue", "conversions", "nonConversions", "transformedPath"])
+    un = set(channel_to_attribution.keys()).difference(["revenue", "conversions", "non_conversions", "transformedPath"])
     attribution_types = [StructField(k, DecimalType(10,3)) for k in list(un)]
     schema = types + attribution_types
 
