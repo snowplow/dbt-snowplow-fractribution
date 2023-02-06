@@ -23,7 +23,7 @@ with non_conversions as (
 
 , string_aggs as (
 
-  select distinct
+  select {% if target.type in ['databricks', 'spark'] %} distinct {% endif %}
     n.customer_id,
     {{ snowplow_utils.get_string_agg('channel', 's', separator=' > ', order_by_column='visit_start_tstamp', sort_numeric=false, partition_by_columns='n.customer_id', order_by_column_prefix='s') }} as path
 

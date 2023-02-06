@@ -8,7 +8,7 @@
 
 with string_aggs as (
 
-  select distinct
+  select {% if target.type in ['databricks', 'spark'] %} distinct {% endif %}
     c.customer_id,
     c.conversion_tstamp,
     c.revenue,
