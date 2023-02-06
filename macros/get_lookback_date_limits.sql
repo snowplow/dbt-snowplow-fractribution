@@ -8,7 +8,9 @@
 
   {% set query %}
     select max(start_tstamp) < '{{ var('conversion_window_end_date') }}' as is_over_limit,
-           cast(min(start_tstamp) as date) > '{{ var('conversion_window_start_date') }}' as is_below_limit
+           cast(min(start_tstamp) as date) > '{{ var('conversion_window_start_date') }}' as is_below_limit,
+           cast(max(start_tstamp) as {{ type_string() }}) as last_processed_page_view,
+           cast(min(start_tstamp) as {{ type_string() }}) as first_processed_page_view
     from {{ var('page_views_source') }}
   {% endset %}
 
@@ -16,12 +18,18 @@
 
   {% if execute %}
     {% set page_view_max = result[0][0] %}
+    {% set last_processed_page_view = result[0][2] %}
     {% if page_view_max == True %}
-      {%- do exceptions.raise_compiler_error("Snowplow Warning: the derived.page_view source does not cover the full fractribution analysis period. Please process your web model first before proceeding with this package.") %}
+      {%- do exceptions.raise_compiler_error("Snowplow Warning: the derived.page_view source does not cover the full fractribution analysis period.
+                                              Please process your web model first before proceeding with this package. Details: conversion_window_start_date "
+                                              + var('conversion_window_end_date') + " is later than last processed pageview " + last_processed_page_view) %}
     {% endif %}
     {% set page_view_min = result[0][1] %}
+    {% set first_processed_page_view = result[0][3] %}
     {% if page_view_min == True %}
-      {%- do exceptions.raise_compiler_error("Snowplow Warning: the derived.page_view source does not cover the full fractribution analysis period. Please backfill / reprocess your web model first before proceeding with this package.") %}
+      {%- do exceptions.raise_compiler_error("Snowplow Warning: the derived.page_view source does not cover the full fractribution analysis period.
+                                              Please backfill / reprocess your web model first before proceeding with this package. Details: conversion_window_start_date "
+                                              + var('conversion_window_start_date') + " is earlier than first processed pageview " + first_processed_page_view) %}
     {% endif %}
   {% endif %}
 
