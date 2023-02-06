@@ -119,9 +119,22 @@ A string value of the upper or lower date limit.
 A macro call with 'min' or 'max' given as a parameter.
 
 ```sql
-where date(derived_tstamp) >= '{{ get_lookback_date_limits('min') }}'
-
-    and date(derived_tstamp) <= '{{ get_lookback_date_limits('max') }}'
+select
+  ...
+from 
+  ...
+where 
+  date(derived_tstamp) >= '{{ get_lookback_date_limits("min") }}'
+  and date(derived_tstamp) <= '{{ get_lookback_date_limits("max") }}'
+  
+-- returns
+select
+  ...
+from 
+  ...
+where 
+  date(derived_tstamp) >= '2023-01-01 13:45:03'
+  and date(derived_tstamp) <= '2023-02-01 10:32:52'
 ```
 {% endraw %}
 {% enddocs %}
