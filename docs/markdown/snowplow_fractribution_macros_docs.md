@@ -139,8 +139,10 @@ Nothing, sql is executed which creates the UDFs in the target database and schem
 #### Usage
 
 ```yml
-
+-- dbt_project.yml
+...
 on-run-start: "{{ create_udfs() }}"
+...
 
 ```
 {% endraw %}
