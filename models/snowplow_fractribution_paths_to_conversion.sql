@@ -21,7 +21,7 @@ with string_aggs as (
     and {{ datediff('s.visit_start_tstamp', 'c.conversion_tstamp', 'day') }}  >= 0
     and {{ datediff('s.visit_start_tstamp', 'c.conversion_tstamp', 'day') }} <= {{ var('path_lookback_days') }}
 
-{% if target.type in ['snowflake', 'bigquery'] -%}
+{% if target.type not in ['databricks', 'spark'] -%}
   group by 1,2,3
 {%- endif %}
 

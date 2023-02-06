@@ -34,7 +34,7 @@ with non_conversions as (
     and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }}  >= 0
     and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }} <= {{ var('path_lookback_days') }}
 
-{% if target.type in ['snowflake', 'bigquery'] -%}
+{% if target.type not in ['databricks', 'spark'] -%}
   group by 1
 {%- endif %}
 
