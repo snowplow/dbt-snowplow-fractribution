@@ -7,8 +7,7 @@ A macro used to perform channel classifications. Each channel should be classifi
 
 A sql of case statements that determine which channel is classified (it is most likely unique to each organisation, the sample provided is based on Google's Fractribution).
 
-#### Usage
-
+Example:
 ```sql
     case when lower(mkt_medium) in ('cpc', 'ppc') and regexp_count(lower(mkt_campaign), 'brand') > 0 then 'Paid_Search_Brand'
          when lower(mkt_medium) in ('cpc', 'ppc') and regexp_count(lower(mkt_campaign), 'generic') > 0 then 'Paid_Search_Generic'
@@ -28,6 +27,14 @@ A sql of case statements that determine which channel is classified (it is most 
          else 'Unmatched_Channel'
     end
 ```
+
+#### Usage
+
+```sql
+
+select {{ channel_classification() }} as channel,
+
+```
 {% endraw %}
 {% enddocs %}
 
@@ -36,16 +43,7 @@ A sql of case statements that determine which channel is classified (it is most 
 {% raw %}
  A macro for the user to overwrite it with a sql script to extract total ad spend by channel.
 
-#### Returns
-
-A sql script to extract channel and corresponding spend values from a data source.
-
-
-#### Usage
-
-```sql
-
-  -- Example (simplified) query:
+ -- Example (simplified) query:
 
   select
     channel,
@@ -60,6 +58,17 @@ A sql script to extract channel and corresponding spend values from a data sourc
   direct      |  1050.02
   paid_search |  10490.11
   etc...
+
+#### Returns
+
+A sql script to extract channel and corresponding spend values from a data source.
+
+
+#### Usage
+
+```sql
+
+{{ channel_spend() }}
 
 ```
 {% endraw %}
@@ -78,7 +87,7 @@ A sql to be used in a WHERE clause to filter on conversion events.
 #### Usage
 
 ```sql
- tr_total > 0
+where {{ conversion_clause() }}
 
 ```
 {% endraw %}
@@ -98,7 +107,7 @@ A sql to be used to refer to the conversion value.
 
 ```sql
 
-tr_total
+select {{ conversion_value() }} as revenue
 
 ```
 {% endraw %}
@@ -175,6 +184,8 @@ The transformed array column.
 #### Usage
 
 ```sql
+
+{{ path_transformation('unique_path') }} as transformed_path
 
 ```
 {% endraw %}
