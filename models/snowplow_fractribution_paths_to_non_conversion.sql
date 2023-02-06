@@ -29,7 +29,7 @@ with non_conversions as (
 
   from non_conversions n
 
-  left join {{ ref('snowplow_fractribution_sessions_by_customer_id') }} s
+  inner join {{ ref('snowplow_fractribution_sessions_by_customer_id') }} s
   on n.customer_id = s.customer_id
     and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }}  >= 0
     and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }} <= {{ var('path_lookback_days') }}
