@@ -38,7 +38,7 @@
     {% elif limit_type == 'max' %}
       with base as (select case when '{{ var("conversion_window_start_date") }}' = ''
                   then {{ dbt.dateadd('day', -1, dbt.current_timestamp()) }}
-                  else '{{ var('conversion_window_end_date') }}'
+                  else '{{ var("conversion_window_end_date") }}'
                   end as max_date_time)
       select cast(max_date_time as date) from base
     {% else %}
