@@ -32,7 +32,7 @@ with non_conversions as (
   inner join {{ ref('snowplow_fractribution_sessions_by_customer_id') }} s
   on n.customer_id = s.customer_id
     and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }}  >= 0
-    and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }} <= {{ var('path_lookback_days') }}
+    and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }} <= {{ var('snowplow__path_lookback_days') }}
 
 {% if target.type not in ['databricks', 'spark'] -%}
   group by 1
@@ -58,4 +58,4 @@ select
   {{ snowplow_utils.get_array_to_string('path', 'p', ' > ') }} as path,
   {{ snowplow_utils.get_array_to_string('transformed_path', 'p', ' > ') }} as transformed_path
 
-from path_transforms p
+from snowplow__path_transforms p

@@ -2,7 +2,7 @@ name: 'snowplow_fractribution_integration_tests'
 version: '0.2.0'
 config-version: 2
 
-profile: 'integration_tests'
+profile: 'integration_tests_sf'
 
 model-paths: ["models"]
 analysis-paths: ["analysis"]
@@ -48,15 +48,15 @@ vars:
     snowplow__backfill_limit_days: 60
 
   snowplow_fractribution:
-    conversion_window_start_date: '2022-06-03'
-    conversion_window_end_date: '2022-08-01'
-    conversion_hosts: ['poplindata.com']
-    path_lookback_steps: 0
-    path_lookback_days: 30
-    path_transforms:  {'exposure_path': null}
+    snowplow__conversion_window_start_date: '2022-06-03'
+    snowplow__conversion_window_end_date: '2022-08-01'
+    snowplow__conversion_hosts: ['poplindata.com']
+    snowplow__path_lookback_steps: 0
+    snowplow__path_lookback_days: 30
+    snowplow__path_transforms:  {'exposure_path': null}
     consider_intrasession_channels: false
-    page_views_source: '{{target.schema}}_derived.snowplow_web_page_views'
-    conversions_source: "{{ ref('snowplow_fractribution_events_stg') }}"
+    snowplow__page_views_source: '{{target.schema}}_derived.snowplow_web_page_views'
+    snowplow__conversions_source: "{{ ref('snowplow_fractribution_events_stg') }}"
 
 seeds:
   quote_columns: false

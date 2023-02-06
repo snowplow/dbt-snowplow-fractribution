@@ -24,20 +24,20 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 vars:
-  conversion_window_start_date: '' # conversion window start date
-  conversion_window_end_date: '' # conversion window end date is dynamically set to current_date()-1 in the code
-  conversion_hosts: ['a.com'] # url_hosts to consider
-  path_transforms: {'exposure_path': null} # dictionary of path transforms (and their argument, null if none) to perform on the full conversion path (see udfs.sql)
-  path_lookback_steps: 0 # Limit for the number of marketing channels to look at before the conversion (0 = unlimited)
-  path_lookback_days: 30 # Restrict to marketing channels within this many days of the conversion (recommended: 30 / 14 / 7)
+  snowplow__conversion_window_start_date: '' # conversion window start date
+  snowplow__conversion_window_end_date: '' # conversion window end date is dynamically set to current_date()-1 in the code
+  snowplow__conversion_hosts: ['a.com'] # url_hosts to consider
+  snowplow__path_transforms: {'exposure_path': null} # dictionary of path transforms (and their argument, null if none) to perform on the full conversion path (see udfs.sql)
+  snowplow__path_lookback_steps: 0 # Limit for the number of marketing channels to look at before the conversion (0 = unlimited)
+  snowplow__path_lookback_days: 30 # Restrict to marketing channels within this many days of the conversion (recommended: 30 / 14 / 7)
 
   consider_intrasession_channels: false # false = only considers the channel at the start (first page view) of the session, true = consider multiple channels in the conversion session as well as historical channels
-  channels_to_exclude: [] # Channels to exclude before creating path summaries (and therefore excluded from fractribution analysis), e.g. ['Direct']
-  use_snowplow_web_user_mapping_table: false # true if using the Snowplow base model for web user mappings (domain_userid => user_id)
+  snowplow__channels_to_exclude: [] # Channels to exclude before creating path summaries (and therefore excluded from fractribution analysis), e.g. ['Direct']
+  snowplow__use_snowplow_web_user_mapping_table: false # true if using the Snowplow base model for web user mappings (domain_userid => user_id)
 
 # Overwrite these source table vars in your own dbt_project.yml if not using these defaults:
-  page_views_source: "{{ source('derived', 'snowplow_web_page_views') }}"
-  conversions_source: "{{ source('atomic', 'events') }}"
+  snowplow__page_views_source: "{{ source('derived', 'snowplow_web_page_views') }}"
+  snowplow__conversions_source: "{{ source('atomic', 'events') }}"
 
   # snowplow_web_user_mapping_table: derived.snowplow_web_user_mapping # path (schema and table) in to the Snowplow web user mapping table (BigQuery)
 

@@ -1,6 +1,6 @@
-[![early-release]][tracker-classification] 
+[![early-release]][tracker-classification]
 [![Release][release-image]][releases]
-[![License][license-image]][license] 
+[![License][license-image]][license]
 [![Discourse posts][discourse-image]][discourse]
 
 ![snowplow-logo](https://raw.githubusercontent.com/snowplow/dbt-snowplow-utils/main/assets/snowplow_logo.png)
@@ -10,13 +10,13 @@
 This dbt package:
 - Uses page view and conversion events to perform fractional marketing attribution (fractribution) on your Snowplow data.
 - Is used in conjunction with a Python script or Docker image to create the final output table.
-- Is designed to be customized, allowing you to easily make modifications to suit your data and objectives. 
+- Is designed to be customized, allowing you to easily make modifications to suit your data and objectives.
 
 Please refer to the [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for a full breakdown of the package. To run this package with detailed instructions and example data, see the [fractribution accelerator](https://docs.snowplow.io/accelerators/snowplow_fractribution/).
 
 ### Adapter Support
 
-The snowplow-fractribution v0.1.0 package currently supports Snowflake. 
+The snowplow-fractribution v0.1.0 package currently supports Snowflake.
 
 |      Warehouse     |    dbt versions     | snowplow-fractribution version |
 | :----------------: | :-----------------: | :----------------------------: |
@@ -65,13 +65,13 @@ The tables produced by the Python script are the following:
 2. Configure the `conversion_value` macro to return the value of the conversion event.
 3. Configure the default `channel_classification` macro to yield your expected channels. The ROAS calculations / attribution calculations will run against these channel definitions.
 4. Configure environment variables to be used by the `connection_parameters` in the `main_snowplow_snowflake.py` file to connect to Snowflake.
-5. Overwrite default variables provided by the package in your dbt_project.yml file, if necessary. E.g.: make sure your `page_views_source` and `conversions_source` are aligned to what is available in your warehouse.
+5. Overwrite default variables provided by the package in your dbt_project.yml file, if necessary. E.g.: make sure your `snowplow__page_views_source` and `snowplow__conversions_source` are aligned to what is available in your warehouse.
 
 ### Running
 
 1. Ensure the setup steps have been completed above.
 2. Run `dbt run`, or `dbt run --select package:fractribution`
-3. Run the python script, e.g. `python utils/main_snowplow_snowflake.py --conversion_window_start_date '2022-06-03' --conversion_window_end_date '2022-08-01'` (see [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for further details)
+3. Run the python script, e.g. `python utils/main_snowplow_snowflake.py --snowplow__conversion_window_start_date '2022-06-03' --snowplow__conversion_window_end_date '2022-08-01'` (see [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/) for further details)
 
 ### Differences to Google's Fractribution
 
@@ -86,7 +86,7 @@ There are some changes from [Google's](https://github.com/google/fractribution) 
 
 ### Intrasession channels
 
-In Google Analytics (Universal Analytics) a new session is started if a campaign source changes (referrer of campaign tagged URL) which is used in Fractribution. Snowplow utilises activity based sessionisation rather than campaign based sessionisation. Setting `consider_intrasession_channels` to `false` will take only the campaign information from the first page view in a given Snowplow session and not give credit to other channels in the converting session if they occur after the initial page view. 
+In Google Analytics (Universal Analytics) a new session is started if a campaign source changes (referrer of campaign tagged URL) which is used in Fractribution. Snowplow utilises activity based sessionisation rather than campaign based sessionisation. Setting `consider_intrasession_channels` to `false` will take only the campaign information from the first page view in a given Snowplow session and not give credit to other channels in the converting session if they occur after the initial page view.
 
 # Join the Snowplow community
 

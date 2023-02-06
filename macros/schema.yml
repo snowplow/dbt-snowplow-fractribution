@@ -46,4 +46,4 @@ macros:
         description: The array column to be transformed
       - name: lookback_steps
         type: integer
-        description: Defaulted to be taken from the path_lookback_steps, the number of path to leave starting from the end
+        description: Defaulted to be taken from the snowplow__path_lookback_steps, the number of path to leave starting from the end

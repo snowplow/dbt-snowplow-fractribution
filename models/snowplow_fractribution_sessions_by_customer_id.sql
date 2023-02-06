@@ -5,13 +5,13 @@
 }}
 
  -- restrict to certain hostnames
-{% if var('conversion_hosts') in ('', [], '[]') or var('conversion_hosts') == None %}
+{% if var('snowplow__conversion_hosts') in ('', [], '[]') or var('snowplow__conversion_hosts') == None %}
     {{ exceptions.raise_compiler_error("Error: var('conversion_host') needs to be set!") }}
 {% endif %}
 
 select
   case when page_views.user_id is not null and page_views.user_id != '' then 'u' || page_views.user_id -- use event user_id
-  {% if var('use_snowplow_web_user_mapping_table') %}
+  {% if var('snowplow__use_snowplow_web_user_mapping_table') %}
        when user_mapping.domain_userid is not null then 'u' || user_mapping.user_id
   {% endif %}
         else 'f' || page_views.domain_userid
@@ -23,9 +23,9 @@ select
   mkt_source as source,
   mkt_medium as medium
 
-from {{ var('page_views_source') }}  page_views
+from {{ var('snowplow__page_views_source') }}  page_views
 
-{% if var('use_snowplow_web_user_mapping_table') %}
+{% if var('snowplow__use_snowplow_web_user_mapping_table') %}
   left join {{ var('snowplow_web_user_mapping_table') }} as user_mapping
   on page_views.domain_userid = user_mapping.domain_userid
 {% endif %}
@@ -36,11 +36,11 @@ where date(derived_tstamp) >= '{{ get_lookback_date_limits("min") }}'
 
   and
     -- restrict to certain hostnames
-{% if var('conversion_hosts') in ('', [], '[]') or var('conversion_hosts') == None %}
+{% if var('snowplow__conversion_hosts') in ('', [], '[]') or var('snowplow__conversion_hosts') == None %}
   {{ exceptions.raise_compiler_error("Error: var('conversion_host') needs to be set!") }}
 
 {% endif %}
-page_urlhost in ({{ snowplow_utils.print_list(var('conversion_hosts')) }})
+page_urlhost in ({{ snowplow_utils.print_list(var('snowplow__conversion_hosts')) }})
 
 {% if var('consider_intrasession_channels') %}
   -- yields one row per channel change
@@ -51,8 +51,8 @@ page_urlhost in ({{ snowplow_utils.print_list(var('conversion_hosts')) }})
   and page_view_in_session_index = 1 -- takes the first page view in the session
 {% endif %}
 
-{% if var('channels_to_exclude') %}
+{% if var('snowplow__channels_to_exclude') %}
     -- Filters out any unwanted channels
-    and channel not in ({{ snowplow_utils.print_list(var('channels_to_exclude')) }})
+    and channel not in ({{ snowplow_utils.print_list(var('snowplow__channels_to_exclude')) }})
 {% endif %}
 

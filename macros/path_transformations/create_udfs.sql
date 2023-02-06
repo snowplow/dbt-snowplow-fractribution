@@ -9,14 +9,14 @@
 {% macro bigquery__create_udfs() %}
 
   {% set trim_long_path %}
-  -- Returns the last path_lookback_steps channels in the path if path_lookback_steps > 0,
+  -- Returns the last snowplow__path_lookback_steps channels in the path if snowplow__path_lookback_steps > 0,
   -- or the full path otherwise.
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.trim_long_path(path ARRAY<string>, path_lookback_steps INTEGER)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.trim_long_path(path ARRAY<string>, snowplow__path_lookback_steps INTEGER)
   RETURNS ARRAY<string>
   LANGUAGE js
   as r"""
-  if (path_lookback_steps > 0) {
-      return path.slice(Math.max(0, path.length - path_lookback_steps));
+  if (snowplow__path_lookback_steps > 0) {
+      return path.slice(Math.max(0, path.length - snowplow__path_lookback_steps));
     }
     return path;
   """;
@@ -178,9 +178,9 @@
 {% macro snowflake__create_udfs(schema_suffix = '_derived') %}
 
   {% set trim_long_path %}
-  -- Returns the last path_lookback_steps channels in the path if path_lookback_steps > 0,
+  -- Returns the last snowplow__path_lookback_steps channels in the path if snowplow__path_lookback_steps > 0,
   -- or the full path otherwise.
-  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.trim_long_path(path ARRAY, path_lookback_steps DOUBLE)
+  CREATE FUNCTION IF NOT EXISTS {{target.schema}}.trim_long_path(path ARRAY, snowplow__path_lookback_steps DOUBLE)
   RETURNS ARRAY LANGUAGE JAVASCRIPT AS $$
   if (PATH_LOOKBACK_STEPS > 0) {
       return PATH.slice(Math.max(0, PATH.length - PATH_LOOKBACK_STEPS));

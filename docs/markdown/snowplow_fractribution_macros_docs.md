@@ -130,18 +130,18 @@ A macro call with 'min' or 'max' given as a parameter.
 ```sql
 select
   ...
-from 
+from
   ...
-where 
+where
   date(derived_tstamp) >= '{{ get_lookback_date_limits("min") }}'
   and date(derived_tstamp) <= '{{ get_lookback_date_limits("max") }}'
-  
+
 -- returns
 select
   ...
-from 
+from
   ...
-where 
+where
   date(derived_tstamp) >= '2023-01-01 13:45:03'
   and date(derived_tstamp) <= '2023-02-01 10:32:52'
 ```
@@ -209,8 +209,8 @@ It is used by the transform_paths() macro for the transformation cte sql code bu
 with base_data as (...),
 
 {{ transform_paths('conversions', 'base_data') }}
- 
-select * from path_transforms
+
+select * from snowplow__path_transforms
 ```
 
 {% endraw %}
@@ -220,7 +220,7 @@ select * from path_transforms
 {% docs macro_trim_long_path %}
 
 {% raw %}
-Returns the last 'path_lookback_steps' number of channels in the path if path_lookback_steps > 0, or the full path otherwise.
+Returns the last 'snowplow__path_lookback_steps' number of channels in the path if snowplow__path_lookback_steps > 0, or the full path otherwise.
 
 #### Returns
 
@@ -233,9 +233,9 @@ The transformed array column.
 
 select
   ...
-  {{ trim_long_path('path', var('path_lookback_steps')) }} as path,
+  {{ trim_long_path('path', var('snowplow__path_lookback_steps')) }} as path,
   ...
-from 
+from
   ...
 
 ```
