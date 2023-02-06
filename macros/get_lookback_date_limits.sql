@@ -7,7 +7,8 @@
   -- check if web data is up-to-date
 
   {% set query %}
-    select max(start_tstamp) < '{{ var('conversion_window_end_date') }}' as is_over_limit
+    select max(start_tstamp) < '{{ var('conversion_window_end_date') }}' as is_over_limit,
+           cast(min(start_tstamp) as date) > '{{ var('conversion_window_start_date') }}' as is_below_limit
     from {{ var('page_views_source') }}
   {% endset %}
 
@@ -18,8 +19,11 @@
     {% if page_view_max == True %}
       {%- do exceptions.raise_compiler_error("Snowplow Warning: the derived.page_view source does not cover the full fractribution analysis period. Please process your web model first before proceeding with this package.") %}
     {% endif %}
+    {% set page_view_min = result[0][1] %}
+    {% if page_view_min == True %}
+      {%- do exceptions.raise_compiler_error("Snowplow Warning: the derived.page_view source does not cover the full fractribution analysis period. Please backfill / reprocess your web model first before proceeding with this package.") %}
+    {% endif %}
   {% endif %}
-
 
 
   {% set query %}
