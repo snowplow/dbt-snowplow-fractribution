@@ -1,2 +1,4 @@
 absl-py==1.2.0
 snowflake-snowpark-python==0.11.0
+databricks-sql-connector==2.1.0
+pandas
