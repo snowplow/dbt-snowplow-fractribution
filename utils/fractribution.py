@@ -264,7 +264,7 @@ class Fractribution(object):
         bytesio = io.BytesIO()
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             row = {
-                "transformedPath": self._get_path_string(path_tuple),
+                "transformed_path": self._get_path_string(path_tuple),
                 "conversions": path_summary.conversions,
                 "non_conversions": path_summary.non_conversions,
                 "revenue": path_summary.revenue,
@@ -282,7 +282,7 @@ class Fractribution(object):
         rows = []
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             row = {
-                "transformedPath": self._get_path_string(path_tuple),
+                "transformed_path": self._get_path_string(path_tuple),
                 "conversions": path_summary.conversions,
                 "non_conversions": path_summary.non_conversions,
                 "revenue": path_summary.revenue,

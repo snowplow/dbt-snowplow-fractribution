@@ -158,9 +158,9 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
         StructField("transformed_path", StringType())
     ]
 
-    # exclude revenue, conversions, non_conversions, transformedPath
+    # exclude revenue, conversions, non_conversions, transformed_path
     channel_to_attribution = frac._get_channel_to_attribution()
-    un = set(channel_to_attribution.keys()).difference(["revenue", "conversions", "non_conversions", "transformedPath"])
+    un = set(channel_to_attribution.keys()).difference(["revenue", "conversions", "non_conversions", "transformed_path"])
     attribution_types = [StructField(k, DecimalType(10,3)) for k in list(un)]
     schema = types + attribution_types
 
