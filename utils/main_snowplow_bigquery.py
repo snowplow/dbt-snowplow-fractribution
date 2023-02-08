@@ -23,7 +23,9 @@ from absl.flags import argparse_flags
 import fractribution
 from google.cloud import bigquery
 
-
+# Construct a BigQuery client object with authentication from JSON
+SERVICE_ACCOUNT_JSON = os.environ["google_application_credentials"]
+client = bigquery.Client.from_service_account_json(SERVICE_ACCOUNT_JSON)
 
 project_id = os.environ.get('project_id')
 dataset = os.environ.get('bigquery_dataset')
@@ -31,9 +33,6 @@ dataset = os.environ.get('bigquery_dataset')
 _OUTPUT_TABLES = ["snowplow_fractribution_path_summary_with_channels", "snowplow_fractribution_report_table", "snowplow_fractribution_channel_attribution"]
 
 VALID_CHANNEL_NAME_PATTERN = re.compile(r"^[a-zA-Z_]\w+$", re.ASCII)
-
-# Construct a BigQuery client object.
-client = bigquery.Client()
 
 def _is_valid_column_name(column_name: str) -> bool:
     """Returns True if the column_name is a valid Bigquery column name."""
@@ -109,20 +108,20 @@ def get_path_summary_data():
         """
     path_summary_data = client.query(query)
     # df = path_summary_data.to_dataframe()
-    
+
     return path_summary_data
 
 
 def create_attribution_report_table():
     query = f"""
-        CREATE OR REPLACE TABLE `{project_id}.{dataset}.snowplow_fractribution_report_table` AS
+        CREATE OR REPLACE TABLE {project_id}.{dataset}.snowplow_fractribution_report_table AS
         SELECT
             *,
-            IFNULL(SAFE_DIVIDE(revenue, spend), 0) AS roas
+            IFNULL(SAFE_DIVIDE(revenue, CAST(spend as float64)), 0) AS roas
         FROM
-            `{project_id}.{dataset}.snowplow_fractribution_channel_attribution`
+            {project_id}.{dataset}.snowplow_fractribution_channel_attribution
             LEFT JOIN
-            `{project_id}.{dataset}.snowplow_fractribution_channel_spend` USING (channel)
+            {project_id}.{dataset}.snowplow_fractribution_channel_spend USING (channel)
     """
 
     return client.query(query)
@@ -142,7 +141,7 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
     frac.run_fractribution(params["attribution_model"])
     frac.normalize_channel_to_attribution_names()
     path_list = frac._path_summary_to_list()
-    types = [ 
+    types = [
                 bigquery.SchemaField("revenue", "FLOAT64", mode="NULLABLE"),
                 bigquery.SchemaField("conversions", "FLOAT64", mode="NULLABLE"),
                 bigquery.SchemaField("non_conversions", "FLOAT64", mode="NULLABLE"),
@@ -154,7 +153,7 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
     un = set(channel_to_attribution.keys()).difference(["revenue", "conversions", "non_conversions", "transformed_path"])
     attribution_types = [bigquery.SchemaField(k, "FLOAT64", mode="NULLABLE") for k in list(un)]
     schema = types + attribution_types
-    
+
     paths_table = bigquery.Table(f"{project_id}.{dataset}.snowplow_fractribution_path_summary_with_channels", schema)
     table = client.create_table(paths_table, exists_ok=True)
 
@@ -179,15 +178,15 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
             "revenue": channel_to_revenue.get(channel, 0.0),
         }
         rows.append(row)
-    
-    schema=[ 
+
+    schema=[
                 bigquery.SchemaField("conversion_window_start_date", "DATE", mode="NULLABLE"),
                 bigquery.SchemaField("conversion_window_end_date", "DATE", mode="NULLABLE"),
                 bigquery.SchemaField("channel", "STRING", mode="NULLABLE"),
                 bigquery.SchemaField("conversions", "FLOAT64", mode="NULLABLE"),
                 bigquery.SchemaField("revenue", "FLOAT64", mode="NULLABLE"),
             ]
-    
+
     channel_attribution_table = bigquery.Table(f"{project_id}.{dataset}.snowplow_fractribution_channel_attribution", schema)
     table = client.create_table(channel_attribution_table, exists_ok=True)
 
