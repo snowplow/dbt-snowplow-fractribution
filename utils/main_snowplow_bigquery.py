@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Loads the data into BigQuery needed to run Fractribution."""
+"""Loads the data needed to run Fractribution into Bigquery."""
 
 import os
 import re
@@ -21,51 +21,25 @@ from typing import Any, Dict, List, Mapping, Optional, Tuple
 from absl import app
 from absl.flags import argparse_flags
 import fractribution
-import pandas as pd
-from collections import namedtuple
 from google.cloud import bigquery
 
+
+
+project_id = os.environ.get('project_id')
+dataset = os.environ.get('bigquery_dataset')
 
 _OUTPUT_TABLES = ["snowplow_fractribution_path_summary_with_channels", "snowplow_fractribution_report_table", "snowplow_fractribution_channel_attribution"]
 
 VALID_CHANNEL_NAME_PATTERN = re.compile(r"^[a-zA-Z_]\w+$", re.ASCII)
 
-db_schema= os.getenv("bigquery_schema")
-
 # Construct a BigQuery client object.
-SERVICE_ACCOUNT_JSON = os.environ["google_application_credentials"]
-client = bigquery.Client.from_service_account_json(SERVICE_ACCOUNT_JSON)
-
-def insert_rows_to_bigquery(table_id, rows_to_insert):
-    # TODO(developer): Set table_id to the ID of table to append to.
-    # table_id = "your-project.your_dataset.your_table"
-    # Rows_to_insert needs to be a list of dictionaries e.g.:
-
-    # rows_to_insert = [
-    #     {"full_name": "Phred Phlyntstone", "age": 32},
-    #     {"full_name": "Wylma Phlyntstone", "age": 29},
-    # ]
-
-    errors = client.insert_rows_json(table_id, rows_to_insert)  # Make an API request.
-    if errors == []:
-        print("New rows have been added.")
-    else:
-        print("Encountered errors while inserting rows: {}".format(errors))
-
-
-def fetch_results_as_pandas_dataframe(query, column_names):
-    query_job = client.query(query)  # API request
-    rows = query_job.result()  # Waits for query to finish
-    names = [x[0] for x in column_names]
-
-    return pd.DataFrame(rows, columns=names)
-
+client = bigquery.Client()
 
 def _is_valid_column_name(column_name: str) -> bool:
-    """Returns True if the column_name is a valid Databricks column name."""
+    """Returns True if the column_name is a valid Bigquery column name."""
 
     return (
-        len(column_name) <= 122
+        len(column_name) <= 300
         and VALID_CHANNEL_NAME_PATTERN.match(column_name) is not None
     )
 
@@ -79,13 +53,13 @@ def _extract_channels(client, params: Mapping[str, Any]) -> List[str]:
     Returns:
       List of channel names.
     Raises:
-      ValueError: User-formatted error if channel is not a valid Databricks column.
+      ValueError: User-formatted error if channel is not a valid Bigquery column.
     """
 
-    channels = [row for row in client["c"]]
+    channels = [row.channel for row in client]
     for channel in channels:
         if not _is_valid_column_name(channel):
-            raise ValueError("Channel is not a legal Databricks column name: ", channel)
+            raise ValueError("Channel is not a legal Bigquery column name: ", channel)
     return channels
 
 
@@ -123,143 +97,107 @@ def parse_args(argv):
 
 def get_channels():
     """Enumerates all possible channels."""
-    query = f"SELECT DISTINCT channel FROM {db_schema}.snowplow_fractribution_channel_counts"
-
-    column_names = ['channel']
-
-    return fetch_results_as_pandas_dataframe(query, column_names)
+    query = f"""SELECT DISTINCT channel FROM `{project_id}.{dataset}.snowplow_fractribution_channel_counts`"""
+    channels = client.query(query)
+    return channels
 
 
 def get_path_summary_data():
-    query = f"SELECT transformed_path, CAST(conversions AS FLOAT) AS conversions, CAST(non_conversions AS float) AS non_conversions, CAST(revenue AS float) AS revenue FROM {db_schema}.snowplow_fractribution_path_summary"
-    column_names = ['transformed_path', 'conversions', 'non_conversions', 'revenue']
-
-    df = fetch_results_as_pandas_dataframe(query, column_names)
-    df = df.fillna("NULL")
-
-    # change pandas dataframe into a list of tuples for further processing (in line with Snowpark output)
-    snowpark_df_base = list(df.itertuples(index=False, name=None))
-    tup = ("TRANSFORMED_PATH", "CONVERSIONS", "NON_CONVERSIONS", "REVENUE")
-    Row = namedtuple("Row",  tup)
-    snowpark_df = []
-    for i in snowpark_df_base:
-        snowpark_df.append(Row._make(i))
-
-    return snowpark_df
+    query = f"""
+        SELECT transformed_path, CAST(conversions AS FLOAT64) AS conversions, CAST(non_conversions AS FLOAT64) AS non_conversions, CAST(revenue AS FLOAT64) AS revenue
+        FROM `{project_id}.{dataset}.snowplow_fractribution_path_summary`
+        """
+    path_summary_data = client.query(query)
+    # df = path_summary_data.to_dataframe()
+    
+    return path_summary_data
 
 
 def create_attribution_report_table():
     query = f"""
-        CREATE OR REPLACE TABLE {db_schema}.snowplow_fractribution_report_table AS
+        CREATE OR REPLACE TABLE `{project_id}.{dataset}.snowplow_fractribution_report_table` AS
         SELECT
             *,
-            REVERSE(ROUND(REVERSE(coalesce(try_divide(revenue, spend), 0)), 1)) AS roas
+            IFNULL(SAFE_DIVIDE(revenue, spend), 0) AS roas
         FROM
-            {db_schema}.snowplow_fractribution_channel_attribution
-        LEFT JOIN
-            {db_schema}.snowplow_fractribution_channel_spend USING (channel)
+            `{project_id}.{dataset}.snowplow_fractribution_channel_attribution`
+            LEFT JOIN
+            `{project_id}.{dataset}.snowplow_fractribution_channel_spend` USING (channel)
     """
 
-    column_names = ['conversionwindowstartdate', 'conversionwindowenddate', 'channel', 'conversions', 'revenue', 'roas']
-
-    return fetch_results_as_pandas_dataframe(query, column_names)
+    return client.query(query)
 
 
 def run_fractribution(params: Mapping[str, Any]) -> None:
-    """Runs fractribution on the Databricks tables.
+    """Runs fractribution on the Bigquery tables.
 
     Args:
       params: Mapping of all template parameter names to values.
     """
 
-    try:
-        path_summary = get_path_summary_data()
+    path_summary = get_path_summary_data()
 
-        # Extract the paths from the path_summary_table.
-        frac = fractribution.Fractribution(path_summary)
-        frac.run_fractribution(params["attribution_model"])
-        frac.normalize_channel_to_attribution_names()
-        path_list = frac._path_summary_to_list()
-        types = [{"revenue":"float"}, {"conversions": "float"}, {"non_conversions": "float"}, {"transformed_path": "string"}]
+    # Step 1: Extract the paths from the path_summary_table.
+    frac = fractribution.Fractribution(path_summary)
+    frac.run_fractribution(params["attribution_model"])
+    frac.normalize_channel_to_attribution_names()
+    path_list = frac._path_summary_to_list()
+    types = [ 
+                bigquery.SchemaField("revenue", "FLOAT64", mode="NULLABLE"),
+                bigquery.SchemaField("conversions", "FLOAT64", mode="NULLABLE"),
+                bigquery.SchemaField("non_conversions", "FLOAT64", mode="NULLABLE"),
+                bigquery.SchemaField("transformed_path", "STRING", mode="NULLABLE"),
+            ]
 
-        # Exclude revenue, conversions, non_conversions, transformed_path
-        channel_to_attribution = frac._get_channel_to_attribution()
-        un = set(channel_to_attribution.keys()).difference(["revenue", "conversions", "non_conversions", "transformed_path"])
+    # exclude revenue, conversions, non_conversions, transformed_path
+    channel_to_attribution = frac._get_channel_to_attribution()
+    un = set(channel_to_attribution.keys()).difference(["revenue", "conversions", "non_conversions", "transformed_path"])
+    attribution_types = [bigquery.SchemaField(k, "FLOAT64", mode="NULLABLE") for k in list(un)]
+    schema = types + attribution_types
+    
+    paths_table = bigquery.Table(f"{project_id}.{dataset}.snowplow_fractribution_path_summary_with_channels", schema)
+    table = client.create_table(paths_table, exists_ok=True)
 
-        attribution_types = [{k:"float"} for k in list(un)]
-        schema = types + attribution_types
+    # Load data into BigQuery
+    job_config=bigquery.LoadJobConfig()
+    job_config.write_disposition="WRITE_TRUNCATE"
+    client.load_table_from_json(path_list, table, job_config)
 
-        # Get column names to then create the base table with the specified data types above
-        columns = []
-        column_types = []
-        for dic in schema:
-            for key, val in dic.items():
-                columns.append(f"{key}")
-                column_types.append(f"{key} {val}")
+    conversion_window_start_date = params["conversion_window_start_date"]
+    conversion_window_end_date = params["conversion_window_end_date"]
 
-        text_column_types = ", ".join(column_types)
-        text_columns = ", ".join(columns)
+    channel_to_attribution = frac._get_channel_to_attribution()
 
-        sql = (f"CREATE OR REPLACE TABLE {db_schema}.snowplow_fractribution_path_summary_with_channels ({text_column_types})")
-        query_job = client.query(sql)  # API request
-        rows = query_job.result()  # Waits for query to finish
+    channel_to_revenue = frac._get_channel_to_revenue()
+    rows = []
+    for channel, attribution in channel_to_attribution.items():
+        row = {
+            "conversion_window_start_date": conversion_window_start_date,
+            "conversion_window_end_date": conversion_window_end_date,
+            "channel": channel,
+            "conversions": attribution,
+            "revenue": channel_to_revenue.get(channel, 0.0),
+        }
+        rows.append(row)
+    
+    schema=[ 
+                bigquery.SchemaField("conversion_window_start_date", "DATE", mode="NULLABLE"),
+                bigquery.SchemaField("conversion_window_end_date", "DATE", mode="NULLABLE"),
+                bigquery.SchemaField("channel", "STRING", mode="NULLABLE"),
+                bigquery.SchemaField("conversions", "FLOAT64", mode="NULLABLE"),
+                bigquery.SchemaField("revenue", "FLOAT64", mode="NULLABLE"),
+            ]
+    
+    channel_attribution_table = bigquery.Table(f"{project_id}.{dataset}.snowplow_fractribution_channel_attribution", schema)
+    table = client.create_table(channel_attribution_table, exists_ok=True)
 
-        # Prepare final list of dictionaries to bulk insert
-        for dic in path_list:
-            sql = f"INSERT INTO {db_schema}.snowplow_fractribution_path_summary_with_channels ({text_columns}) values("
-            values = []
-            for col in columns:
-                if col == 'transformed_path':
-                    values.append("\'"+str(dic[col])+"\'")
-                else:
-                    try:
-                        values.append(str(dic[col]))
-                    except BaseException as error:
-                        values.append("NULL")
-            sql += ", ".join(values) + ")"
-            query_job = client.query(sql)  # API request
-            rows = query_job.result()  # Waits for query to finish
+    # Load data into BigQuery
+    jc=bigquery.LoadJobConfig()
+    jc.write_disposition="WRITE_TRUNCATE"
+    client.load_table_from_json(rows, table, job_config=jc)
 
-        conversion_window_start_date = params["conversion_window_start_date"]
-        conversion_window_end_date = params["conversion_window_end_date"]
+    report = create_attribution_report_table()
 
-        channel_to_attribution = frac._get_channel_to_attribution()
-        channel_to_revenue = frac._get_channel_to_revenue()
-
-        # Create and populate table snowplow_fractribution_channel_attribution
-        sql =(f"CREATE OR REPLACE TABLE {db_schema}.snowplow_fractribution_channel_attribution (conversion_window_start_date string, conversion_window_end_date string, channel string, conversions decimal(10, 2), revenue decimal(10, 2))")
-        query_job = client.query(sql)  # API request
-        rows = query_job.result()  # Waits for query to finish
-
-        rows = []
-        for channel, attribution in channel_to_attribution.items():
-            row = {
-                "conversion_window_start_date": conversion_window_start_date,
-                "conversion_window_end_date": conversion_window_end_date,
-                "channel": channel,
-                "conversions": attribution,
-                "revenue": channel_to_revenue.get(channel, 0.0),
-            }
-            rows.append(row)
-
-        columns = ['conversion_window_start_date', 'conversion_window_end_date', 'channel', 'conversions', 'revenue']
-        text_columns = ", ".join(columns)
-
-        for dic in rows:
-            sql = f"INSERT INTO {db_schema}.snowplow_fractribution_channel_attribution ({text_columns}) values("
-            values = []
-            for col in columns:
-                if col == 'conversions' or col == 'revenue':
-                    values.append(str(dic[col]))
-                else:
-                    values.append("\'"+str(dic[col])+"\'")
-            sql += ", ".join(values) + ")"
-            query_job = client.query(sql)  # API request
-            rows = query_job.result()  # Waits for query to finish
-        report = create_attribution_report_table()
-
-    except BaseException as error:
-        print('An exception occurred: {}'.format(error))
 
 
 def run(input_params: Mapping[str, Any]) -> int:
@@ -270,7 +208,6 @@ def run(input_params: Mapping[str, Any]) -> int:
     Returns:
       0 on success and non-zero otherwise
     """
-
     params = input_params
 
     # assumes that the dataset already exists
@@ -283,7 +220,6 @@ def run(input_params: Mapping[str, Any]) -> int:
     run_fractribution(params)
 
     return 0
-
 
 def standalone_main(args):
     input_params = {
