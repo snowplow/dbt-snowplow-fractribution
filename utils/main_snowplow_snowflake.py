@@ -92,6 +92,15 @@ def parse_args(argv):
         required=True,
         help="End date of the window for conversions",
     )
+
+    tool_helper = ap.add_argument_group(title="Helper")
+    tool_helper.add_argument(
+        "--verbose",
+        help="Increase output verbosity",
+        action="store_true"
+    )
+
+
     args = ap.parse_args(argv[1:])
     if args.attribution_model not in fractribution.Fractribution.ATTRIBUTION_MODELS:
         raise ValueError(
@@ -222,6 +231,7 @@ def standalone_main(args):
         "attribution_model": args.attribution_model,
         "conversion_window_start_date": args.conversion_window_start_date,
         "conversion_window_end_date": args.conversion_window_end_date,
+        "verbose": args.verbose,
     }
     run(input_params)
     print("Report table created")

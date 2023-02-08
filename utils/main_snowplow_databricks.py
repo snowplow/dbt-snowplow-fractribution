@@ -103,11 +103,21 @@ def parse_args(argv):
         required=True,
         help="End date of the window for conversions",
     )
+
+    tool_helper = ap.add_argument_group(title="Helper")
+    tool_helper.add_argument(
+        "--verbose",
+        help="Increase output verbosity",
+        action="store_true"
+    )
+
+
     args = ap.parse_args(argv[1:])
     if args.attribution_model not in fractribution.Fractribution.ATTRIBUTION_MODELS:
         raise ValueError(
             f"Unknown attribution_model. Use one of: {list(fractribution.Fractribution.ATTRIBUTION_MODELS.keys())}"
         )
+
 
     return args
 
@@ -192,6 +202,8 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
         text_column_types = ", ".join(column_types)
         text_columns = ", ".join(columns)
         cs.execute(f"CREATE OR REPLACE TABLE {db_schema}.snowplow_fractribution_path_summary_with_channels ({text_column_types})")
+        if params["verbose"]:
+            print("Table snowplow_fractribution_path_summary_with_channels is created. Inserting data...")
 
         # Insert rows one at a time
         for dic in path_list:
@@ -207,6 +219,9 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
                         values.append("NULL")
             sql += ", ".join(values) + ")"
             cs.execute(sql)
+
+        if params["verbose"]:
+            print("Uploading data to snowplow_fractribution_path_summary_with_channels finished.")
 
         conversion_window_start_date = params["conversion_window_start_date"]
         conversion_window_end_date = params["conversion_window_end_date"]
@@ -285,6 +300,7 @@ def standalone_main(args):
         "attribution_model": args.attribution_model,
         "conversion_window_start_date": args.conversion_window_start_date,
         "conversion_window_end_date": args.conversion_window_end_date,
+        "verbose": args.verbose,
     }
     run(input_params)
     print("Report table created")

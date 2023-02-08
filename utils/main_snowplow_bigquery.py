@@ -85,11 +85,21 @@ def parse_args(argv):
         required=True,
         help="End date of the window for conversions",
     )
+
+    tool_helper = ap.add_argument_group(title="Helper")
+    tool_helper.add_argument(
+        "--verbose",
+        help="Increase output verbosity",
+        action="store_true"
+    )
+
+
     args = ap.parse_args(argv[1:])
     if args.attribution_model not in fractribution.Fractribution.ATTRIBUTION_MODELS:
         raise ValueError(
             f"Unknown attribution_model. Use one of: {list(fractribution.Fractribution.ATTRIBUTION_MODELS.keys())}"
         )
+
 
     return args
 
@@ -189,11 +199,15 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
 
     channel_attribution_table = bigquery.Table(f"{project_id}.{dataset}.snowplow_fractribution_channel_attribution", schema)
     table = client.create_table(channel_attribution_table, exists_ok=True)
+    if params["verbose"]:
+        print("Table snowplow_fractribution_path_summary_with_channels is created. Inserting data...")
 
     # Load data into BigQuery
     jc=bigquery.LoadJobConfig()
     jc.write_disposition="WRITE_TRUNCATE"
     client.load_table_from_json(rows, table, job_config=jc)
+    if params["verbose"]:
+        print("Uploading data to snowplow_fractribution_path_summary_with_channels finished.")
 
     report = create_attribution_report_table()
 
@@ -225,6 +239,7 @@ def standalone_main(args):
         "attribution_model": args.attribution_model,
         "conversion_window_start_date": args.conversion_window_start_date,
         "conversion_window_end_date": args.conversion_window_end_date,
+        "verbose": args.verbose,
     }
     run(input_params)
     print("Report table created")
