@@ -7,3 +7,4 @@ logs/
 venv/
 dbt-service-account.json
 .vscode/settings.json
+__pycache__
