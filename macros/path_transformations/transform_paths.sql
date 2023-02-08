@@ -6,9 +6,9 @@
 
 {% macro default__transform_paths(model_type, source_cte) %}
 
-  {% set allowed_snowplow__path_transforms = ['exposure_path', 'first_path', 'frequency_path', 'remove_if_last_and_not_all', 'remove_if_not_all', 'unique_path'] %}
+  {% set allowed_path_transforms = ['exposure_path', 'first_path', 'frequency_path', 'remove_if_last_and_not_all', 'remove_if_not_all', 'unique_path'] %}
 
-  , snowplow__path_transforms as (
+  , path_transforms as (
 
      select
         customer_id,
@@ -22,7 +22,7 @@
 
       -- reverse transormation due to nested functions, items to be processed from left to right
       {% for path_transform_name, _ in var('snowplow__path_transforms').items()|reverse %}
-        {% if path_transform_name not in allowed_snowplow__path_transforms %}
+        {% if path_transform_name not in allowed_path_transforms %}
           {%- do exceptions.raise_compiler_error("Snowplow Error: the path transform - '"+path_transform_name+"' - is not supported. Please refer to the Snowplow docs on tagging. Please use one of the following: exposure_path, first_path, frequency_path, remove_if_last_and_not_all, remove_if_not_all, unique_path") %}
         {% endif %}
         {{target.schema}}.{{path_transform_name}}(
@@ -108,7 +108,7 @@
 
   {% endfor %}
 
-  , snowplow__path_transforms as (
+  , path_transforms as (
 
     select
       customer_id,

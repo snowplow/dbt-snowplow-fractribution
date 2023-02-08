@@ -58,4 +58,4 @@ select
   {{ snowplow_utils.get_array_to_string('path', 'p', ' > ') }} as path,
   {{ snowplow_utils.get_array_to_string('transformed_path', 'p', ' > ') }} as transformed_path
 
-from snowplow__path_transforms p
+from path_transforms p

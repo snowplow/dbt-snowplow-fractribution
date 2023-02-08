@@ -77,7 +77,7 @@ models:
 
   - name: snowplow_fractribution_sessions_by_customer_id
     description: >
-      Channels per session by customer id, yields one row per session unless consider_intrasession_channels is true
+      Channels per session by customer id, yields one row per session unless snowplow__consider_intrasession_channels is true
     columns:
       - name: customer_id
         description: Customer id

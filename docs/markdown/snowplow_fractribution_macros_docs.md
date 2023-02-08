@@ -210,7 +210,7 @@ with base_data as (...),
 
 {{ transform_paths('conversions', 'base_data') }}
 
-select * from snowplow__path_transforms
+select * from path_transforms
 ```
 
 {% endraw %}

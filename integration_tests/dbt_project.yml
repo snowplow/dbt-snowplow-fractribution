@@ -54,7 +54,7 @@ vars:
     snowplow__path_lookback_steps: 0
     snowplow__path_lookback_days: 30
     snowplow__path_transforms:  {'exposure_path': null}
-    consider_intrasession_channels: false
+    snowplow__consider_intrasession_channels: false
     snowplow__page_views_source: '{{target.schema}}_derived.snowplow_web_page_views'
     snowplow__conversions_source: "{{ ref('snowplow_fractribution_events_stg') }}"
 

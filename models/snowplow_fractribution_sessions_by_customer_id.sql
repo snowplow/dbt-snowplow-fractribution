@@ -42,7 +42,7 @@ where date(derived_tstamp) >= '{{ get_lookback_date_limits("min") }}'
 {% endif %}
 page_urlhost in ({{ snowplow_utils.print_list(var('snowplow__conversion_hosts')) }})
 
-{% if var('consider_intrasession_channels') %}
+{% if var('snowplow__consider_intrasession_channels') %}
   -- yields one row per channel change
   and mkt_medium is not null and mkt_medium != ''
 
