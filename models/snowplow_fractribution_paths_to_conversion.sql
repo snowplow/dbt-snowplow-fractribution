@@ -23,7 +23,6 @@ with string_aggs as (
 
   group by 1,2,3
 
-
 )
 
 , arrays as (
