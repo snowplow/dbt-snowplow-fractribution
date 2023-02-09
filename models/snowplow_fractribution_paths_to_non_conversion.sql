@@ -23,9 +23,9 @@ with non_conversions as (
 
 , string_aggs as (
 
-  select {% if target.type in ['databricks', 'spark'] %} distinct {% endif %}
+  select
     n.customer_id,
-    {{ snowplow_utils.get_string_agg('channel', 's', separator=' > ', order_by_column='visit_start_tstamp', sort_numeric=false, partition_by_columns='n.customer_id', order_by_column_prefix='s') }} as path
+    {{ snowplow_utils.get_string_agg('channel', 's', separator=' > ', order_by_column='visit_start_tstamp', sort_numeric=false, order_by_column_prefix='s') }} as path
 
   from non_conversions n
 
@@ -34,9 +34,8 @@ with non_conversions as (
     and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }}  >= 0
     and {{ datediff('s.visit_start_tstamp', 'n.non_conversion_tstamp', 'day') }} <= {{ var('snowplow__path_lookback_days') }}
 
-{% if target.type not in ['databricks', 'spark'] -%}
   group by 1
-{%- endif %}
+
 
 )
 

@@ -8,11 +8,11 @@
 
 with string_aggs as (
 
-  select {% if target.type in ['databricks', 'spark'] %} distinct {% endif %}
+  select
     c.customer_id,
     c.conversion_tstamp,
     c.revenue,
-    {{ snowplow_utils.get_string_agg('channel', 's', separator=' > ', sort_numeric=false, order_by_column='visit_start_tstamp', partition_by_columns='c.customer_id', order_by_column_prefix='s') }} as path
+    {{ snowplow_utils.get_string_agg('channel', 's', separator=' > ', sort_numeric=false, order_by_column='visit_start_tstamp', order_by_column_prefix='s') }} as path
 
   from {{ ref('snowplow_fractribution_conversions_by_customer_id') }} c
 
@@ -21,9 +21,8 @@ with string_aggs as (
     and {{ datediff('s.visit_start_tstamp', 'c.conversion_tstamp', 'day') }}  >= 0
     and {{ datediff('s.visit_start_tstamp', 'c.conversion_tstamp', 'day') }} <= {{ var('snowplow__path_lookback_days') }}
 
-{% if target.type not in ['databricks', 'spark'] -%}
   group by 1,2,3
-{%- endif %}
+
 
 )
 
