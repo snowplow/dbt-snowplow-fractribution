@@ -4,6 +4,7 @@ USER root
 ENV attribution_model=${attribution_model:-shapley}
 ENV conversion_window_start_date=${conversion_window_start_date}
 ENV conversion_window_end_date=${conversion_window_end_date}
+ENV warehouse=${warehouse}
 
 # Snowflake-specific env variables
 ENV snowflake_account=${snowflake_account}

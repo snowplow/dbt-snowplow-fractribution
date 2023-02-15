@@ -78,11 +78,11 @@ The tables produced by the Python script are the following:
 For Python:
 I. Set up your python virtual environment based on utils/requirements.txt.
 II. Configure you environment variables needed for the scripts to run
-III. Run the correct python script for the data warehouse you are using, e.g. python utils/main_snowplow_snowflake.py --conversion_window_start_date '2022-06-03' --conversion_window_end_date '2022-08-01' for Snowflake, or python utils/main_snowplow_bigquery.py --conversion_window_start_date '2022-06-03' --conversion_window_end_date '2022-08-01' for Bigquery. Set these conversion_window dates to represent the last 30 days if you left these variables blank in the dbt_project.yml file. You can optionally add the attribution_model flag if you do not want the default of shapley.  
+III. Run the correct python script for the data warehouse you are using, e.g. `python utils/main_snowplow_snowflake.py --conversion_window_start_date '2022-06-03' --conversion_window_end_date '2022-08-01'` for Snowflake, or `python utils/main_snowplow_bigquery.py --conversion_window_start_date '2022-06-03' --conversion_window_end_date '2022-08-01'` for Bigquery. Set these conversion_window dates to represent the last 30 days if you left these variables blank in the dbt_project.yml file. You can optionally add the attribution_model flag if you do not want the default of shapley.  
 For Docker:
-I. Ensure you have Docker installed. Pull the docker image from Docker Hub: docker pull snowplow/fractribution
-II. Add the necessary environment variables to an environment file, e.g. configs.env. The necessary variables will differ depending on the data warehouse you are using. The easiest way to determine the variables you need to set is to check the Dockerfile in the fractribution dbt package: dbt-snowplow-fractribution/utils/Dockerfile
-III. Run the docker container with a variable for the data warehouse (Snowplow and Databricks): docker run --rm -e warehouse=snowflake --env-file /path/to/env/file/configs.env -it snowplow/fractribution. If you are using Bigquery, mount your service account keyfile as a volume: docker run --rm -e warehouse=bigquery --env-file /path/to/env/file/configs.env -v /path/to/yourkeyfile.json:/keyfile.json -it snowplow/fractribution​​
+I. Ensure you have Docker installed. Pull the docker image from Docker Hub: `docker pull snowplow/fractribution`
+II. Add the necessary environment variables to an environment file, e.g. configs.env. The necessary variables will differ depending on the data warehouse you are using. The easiest way to determine the variables you need to set is to check the Dockerfile in the fractribution dbt package: `dbt-snowplow-fractribution/utils/Dockerfile`
+III. Run the docker container: `docker run --rm --env-file /path/to/env/file/configs.env -it snowplow/fractribution`. If you are using Bigquery, mount your service account keyfile as a volume: `docker run --rm --env-file /path/to/env/file/configs.env -v /path/to/yourkeyfile.json:/keyfile.json -it snowplow/fractribution​​`
 
 ### Differences to Google's Fractribution
 
