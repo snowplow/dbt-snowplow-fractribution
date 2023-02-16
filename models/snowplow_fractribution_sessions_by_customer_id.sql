@@ -26,7 +26,7 @@ select
 from {{ var('snowplow__page_views_source') }}  page_views
 
 {% if var('snowplow__use_snowplow_web_user_mapping_table') %}
-  left join {{ var('snowplow_web_user_mapping_table') }} as user_mapping
+  left join {{ var('snowplow__web_user_mapping_table') }} as user_mapping
   on page_views.domain_userid = user_mapping.domain_userid
 {% endif %}
 
@@ -55,4 +55,3 @@ page_urlhost in ({{ snowplow_utils.print_list(var('snowplow__conversion_hosts'))
     -- Filters out any unwanted channels
     and channel not in ({{ snowplow_utils.print_list(var('snowplow__channels_to_exclude')) }})
 {% endif %}
-

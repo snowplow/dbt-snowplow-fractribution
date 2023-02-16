@@ -17,7 +17,7 @@ select
 from {{ var('snowplow__conversions_source' )}} as events
 
 {% if var('snowplow__use_snowplow_web_user_mapping_table') %}
-  left join {{ var('snowplow_web_user_mapping_table') }} as user_mapping
+  left join {{ var('snowplow__web_user_mapping_table') }} as user_mapping
     on events.domain_userid = user_mapping.domain_userid
 {% endif %}
 

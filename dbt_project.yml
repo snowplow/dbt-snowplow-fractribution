@@ -39,7 +39,7 @@ vars:
   snowplow__page_views_source: "{{ source('derived', 'snowplow_web_page_views') }}"
   snowplow__conversions_source: "{{ source('atomic', 'events') }}"
 
-  # snowplow_web_user_mapping_table: derived.snowplow_web_user_mapping # path (schema and table) to the Snowplow web user mapping table
+  # snowplow__web_user_mapping_table: derived.snowplow_web_user_mapping # path (schema and table) to the Snowplow web user mapping table
 
 
 on-run-start: "{{ create_udfs() }}"
