@@ -18,7 +18,7 @@ ENV snowflake_schema=${snowflake_schema}
 # Bigquery-specific env variables
 ENV project_id=${project_id}
 ENV bigquery_dataset=${bigquery_dataset}
-ENV google_application_credentials /keyfile.json
+ENV google_application_credentials=/keyfile.json
 
 # Databricks-specific env variables
 ENV databricks_schema=${databricks_schema}
