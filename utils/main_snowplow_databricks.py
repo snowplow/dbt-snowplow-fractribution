@@ -13,7 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Loads the data into Databricks needed to run Fractribution."""
+"""Loads the data needed to run Fractribution into Databricks.
+It produces the following output tables in the data warehouse:
+
+snowplow_fractribution_path_summary_with_channels
+snowplow_fractribution_report_table
+snowplow_fractribution_channel_attribution"""
 
 import os
 import re
@@ -24,9 +29,6 @@ import fractribution
 import pandas as pd
 from collections import namedtuple
 from databricks import sql
-
-
-_OUTPUT_TABLES = ["snowplow_fractribution_path_summary_with_channels", "snowplow_fractribution_report_table", "snowplow_fractribution_channel_attribution"]
 
 VALID_CHANNEL_NAME_PATTERN = re.compile(r"^[a-zA-Z_]\w+$", re.ASCII)
 
@@ -61,7 +63,7 @@ def _is_valid_column_name(column_name: str) -> bool:
     )
 
 
-def _extract_channels(client, params: Mapping[str, Any]) -> List[str]:
+def _extract_channels(client) -> List[str]:
     """Returns the list of names by running extract_channels.sql.
 
     Args:
