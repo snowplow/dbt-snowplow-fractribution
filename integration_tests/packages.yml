@@ -1,6 +1,6 @@
 packages:
   - local: ../
-  - git: "https://github.com/snowplow/dbt-snowplow-utils.git"
-    revision: "fix/cross_db_macros"
+  - package: snowplow/snowplow_utils
+    version: [">=0.13.1", "<0.14.0"]
   - git: "https://github.com/snowplow/dbt-snowplow-web.git"
     revision: "feature/consent-adapter-support"
