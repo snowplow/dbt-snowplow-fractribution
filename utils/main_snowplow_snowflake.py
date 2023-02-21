@@ -222,7 +222,7 @@ def run(input_params: Mapping[str, Any]) -> int:
     channels = get_channels(session)
     session.close()
 
-    params["channels"] = _extract_channels(channels, None)
+    params["channels"] = _extract_channels(channels)
 
     run_fractribution(params)
 

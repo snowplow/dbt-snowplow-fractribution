@@ -290,7 +290,7 @@ def run(input_params: Mapping[str, Any]) -> int:
     cs.close()
     cnx.close()
 
-    params["channels"] = _extract_channels(channels, None)
+    params["channels"] = _extract_channels(channels)
 
     run_fractribution(params)
 
