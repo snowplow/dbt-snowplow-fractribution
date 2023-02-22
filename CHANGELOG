@@ -1,3 +1,25 @@
+snowplow-fractribution 0.2.0 (2023-02-24)
+---------------------------------------
+## Summary
+This release adds support for Databricks and BigQuery. From now users are allowed to filter unwanted channels as well. Under the hood we added an integration testing suite and some automations with Github actions.
+
+## Features
+Add support for Databricks and BigQuery
+Add release and pages actions (#5)
+Allow user to filter unwanted channels (#3)
+Add versioning for Docker
+
+## 🚨 Breaking Changes 🚨
+Variable names have changed (prefaced with `snowplow__`), please align the new ones found in the dbt_project.yml file and the ones defined in your own project's yml file that you used to overwrite the default values. Please note that
+`snowplow__path_transforms` variable is a dictionary instead of an array and that the path transform names have also changed (e.g: `Exposure` -> `exposure_path`).
+
+The scripts inside the utils folder also changed which need to be replaced. In case you used Docker, you can either pull the latest image: `docker pull snowplow/fractribution:latest` or the version number in line with the package: `docker pull snowplow/fractribution:0.2.0`.
+
+Due to dependencies please be aware that the package requires dbt-core@1.3 as a minimum.
+
+## Upgrading
+To upgrade bump the snowplow-fractribution version in your `packages.yml` file as well as make the necessary changes highlighted in the Breaking Changes section.
+
 snowplow-fractribution 0.1.0 (2022-12-15)
 ---------------------------------------
 Add support for Snowflake
