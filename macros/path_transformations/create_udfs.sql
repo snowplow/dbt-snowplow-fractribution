@@ -31,6 +31,10 @@
   --   E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C].
   -- frequency_path: Removes repeat events but tracks them with a count.
   --   E.g. [D, A, B, B, C, D, C, C] --> [D(2), A(1), B(2), C(3)).
+  -- remove_if_last_and_not_all: requires a channel to be added as a parameter, which gets removed from the latest paths unless it removes the whole path as it is trying to reach a non-matching channel parameter
+  --   E.g target element: `A`, path: `A → B → A → A` becomes `A → B`
+  -- remove_if_not_all: requires a channel to be added as a parameter, which gets removed from the path altogether unless it would result in the whole path's removal.
+  --   E.g target element: `A`, path: `A → B → A → A` becomes `B`
 
 
   {% set remove_if_not_all %}
@@ -182,8 +186,8 @@
   -- or the full path otherwise.
   CREATE FUNCTION IF NOT EXISTS {{target.schema}}.trim_long_path(path ARRAY, snowplow__path_lookback_steps DOUBLE)
   RETURNS ARRAY LANGUAGE JAVASCRIPT AS $$
-  if (PATH_LOOKBACK_STEPS > 0) {
-      return PATH.slice(Math.max(0, PATH.length - PATH_LOOKBACK_STEPS));
+  if (SNOWPLOW__PATH_LOOKBACK_STEPS > 0) {
+      return PATH.slice(Math.max(0, PATH.length - SNOWPLOW__PATH_LOOKBACK_STEPS));
     }
     return PATH;
   $$;
@@ -199,7 +203,10 @@
   --   E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C].
   -- frequency_path: Removes repeat events but tracks them with a count.
   --   E.g. [D, A, B, B, C, D, C, C] --> [D(2), A(1), B(2), C(3)).
-
+  -- remove_if_last_and_not_all: requires a channel to be added as a parameter, which gets removed from the latest paths unless it removes the whole path as it is trying to reach a non-matching channel parameter
+  --   E.g target element: `A`, path: `A → B → A → A` becomes `A → B`
+  -- remove_if_not_all: requires a channel to be added as a parameter, which gets removed from the path altogether unless it would result in the whole path's removal.
+  --   E.g target element: `A`, path: `A → B → A → A` becomes `B`
 
   {% set remove_if_not_all %}
   -- Returns the path with all copies of targetElem removed, unless the path consists only of
