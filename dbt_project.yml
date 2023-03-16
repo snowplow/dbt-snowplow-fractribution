@@ -3,13 +3,14 @@ name: 'snowplow_fractribution'
 version: '0.2.0'
 config-version: 2
 
-# This setting configures which "profile" dbt uses for this project.
+require-dbt-version: [">=1.4.0", "<2.0.0"]
+
 profile: 'default'
 
+dispatch:
+  - macro_namespace: dbt
+    search_order: ['snowplow_utils', 'dbt']
 
-# These configurations specify where dbt should look for different types of files.
-# The `model-paths` config, for example, states that models in this project can be
-# found in the "models/" directory. You probably won't need to change these!
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
