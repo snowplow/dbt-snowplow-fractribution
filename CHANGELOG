@@ -1,7 +1,7 @@
-snowplow-fractribution 0.2.0 (2023-0X-XX)
+snowplow-fractribution 0.3.0 (2023-03-29)
 ---------------------------------------
 ## Summary
-This version migrates our models away from the `snowplow_incremental_materialization` and instead move to using the built-in `incremental` with an optimization applied on top. 
+This version migrates our models away from the `snowplow_incremental_materialization` and instead moves to using the built-in `incremental` with an optimization applied on top. This package doesn't use this and so there are no changes to models, but the version of snowplow-web this now supports requires a later version of dbt so this remains a breaking change, and will also potentially impact any custom models you have.
 
 ## 🚨 Breaking Changes 🚨
 ### Changes to materialization
@@ -24,7 +24,7 @@ For custom models please refer to the [snowplow utils migration guide](https://d
 - Update readme
 
 ## Upgrading
-Bump the snowplow-normalize version in your `packages.yml` file, and ensuring you have followed the above steps. You can read more in our [upgrade guide](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/migration-guides/fractribution/#upgrading-to-0140)
+Bump the snowplow-fractribution version in your `packages.yml` file, and ensuring you have followed the above steps. You can read more in our [upgrade guide](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/migration-guides/fractribution/#upgrading-to-0140)
 
 snowplow-fractribution 0.2.0 (2023-02-24)
 ---------------------------------------
