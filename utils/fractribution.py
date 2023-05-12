@@ -169,7 +169,7 @@ class Fractribution(object):
                 continue
             for channel in path_tuple:
                 path_summary.channel_to_attribution[channel] = 0.0
-            path_summary.channel_to_attribution[path_tuple[0]] = 1
+            path_summary.channel_to_attribution[path_tuple[0]] = 1.0
 
     def run_last_touch_attribution(self) -> None:
         """Assigns 100% attribution to the last channel in each path.
@@ -183,7 +183,7 @@ class Fractribution(object):
                 continue
             for channel in path_tuple:
                 path_summary.channel_to_attribution[channel] = 0.0
-            path_summary.channel_to_attribution[path_tuple[-1]] = 1
+            path_summary.channel_to_attribution[path_tuple[-1]] = 1.0
 
     def run_linear_attribution(self) -> None:
         """Assigns attribution evenly between all channels on the path.
@@ -320,7 +320,7 @@ class Fractribution(object):
         for path_summary in self._path_tuple_to_summary.values():
             channel_to_attribution = path_summary.channel_to_attribution
             revenue = path_summary.revenue
-            if not revenue:
+            if not revenue or revenue == 'NULL':
                 revenue = 0.0
             for channel, attribution in channel_to_attribution.items():
                 overall_channel_to_revenue[channel] = overall_channel_to_revenue.get(

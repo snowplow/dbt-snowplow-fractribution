@@ -33,6 +33,8 @@ models:
         +enabled: "{{ target.type == 'bigquery' | as_bool() }}"
       databricks:
         +enabled: "{{ target.type in ['databricks', 'spark'] | as_bool() }}"
+      default:
+        +enabled: "{{ target.type in ['redshift', 'postgres'] | as_bool() }}"
       snowflake:
         +enabled: "{{ target.type == 'snowflake' | as_bool() }}"
   snowplow_web:
@@ -50,6 +52,7 @@ vars:
     snowplow__start_date: '2022-06-03'
     snowplow__databricks_catalog: 'atomic'
     snowplow__backfill_limit_days: 60
+    snowplow__page_view_context: "{{ ref('snowplow_web_page_view_context_stg') }}"
 
   snowplow_fractribution:
     snowplow__conversion_window_start_date: '2022-06-03'

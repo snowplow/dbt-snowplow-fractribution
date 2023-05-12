@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Loads the data needed to run Fractribution into Databricks.
+"""Loads the data needed to run Fractribution into Redshift.
 It produces the following output tables in the data warehouse:
 
 snowplow_fractribution_path_summary_with_channels
@@ -28,20 +28,26 @@ from absl.flags import argparse_flags
 import fractribution
 import pandas as pd
 from collections import namedtuple
-from databricks import sql
+import redshift_connector as sql
 
 VALID_CHANNEL_NAME_PATTERN = re.compile(r"^[a-zA-Z_]\w+$", re.ASCII)
 
-db_schema= os.getenv("databricks_schema")
+db_schema = os.getenv("redshift_schema")
 
-def connect_to_databricks():
 
-    cnx = sql.connect(server_hostname = os.getenv("databricks_server_hostname"),
-                      http_path       = os.getenv("databricks_http_path"),
-                      access_token    = os.getenv("databricks_token"))
+def connect_to_redshift():
 
+    cnx = sql.connect(host=os.getenv("redshift_host"),
+                      database=os.getenv("redshift_database"),
+                      port=int(os.getenv("redshift_port")),
+                      user=os.getenv("redshift_user"),
+                      password=os.getenv("redshift_password")
+                      )
+
+    cnx.autocommit = True
     cs = cnx.cursor()
-    print("Connected to Databricks")
+    print("Connected to Redshift")
+
 
     return cs, cnx
 
@@ -55,10 +61,10 @@ def fetch_results_as_pandas_dataframe(cs, query, column_names):
 
 
 def _is_valid_column_name(column_name: str) -> bool:
-    """Returns True if the column_name is a valid Databricks column name."""
+    """Returns True if the column_name is a valid redshift column name."""
 
     return (
-        len(column_name) <= 122
+        len(column_name) <= 115
         and VALID_CHANNEL_NAME_PATTERN.match(column_name) is not None
     )
 
@@ -72,13 +78,14 @@ def _extract_channels(client) -> List[str]:
     Returns:
       List of channel names.
     Raises:
-      ValueError: User-formatted error if channel is not a valid Databricks column.
+      ValueError: User-formatted error if channel is not a valid Redshift column.
     """
 
     channels = [row for row in client["c"]]
     for channel in channels:
         if not _is_valid_column_name(channel):
-            raise ValueError("Channel is not a legal Databricks column name: ", channel)
+            raise ValueError(
+                "Channel is not a legal Redshift column name: ", channel)
     return channels
 
 
@@ -113,13 +120,11 @@ def parse_args(argv):
         action="store_true"
     )
 
-
     args = ap.parse_args(argv[1:])
     if args.attribution_model not in fractribution.Fractribution.ATTRIBUTION_MODELS:
         raise ValueError(
             f"Unknown attribution_model. Use one of: {list(fractribution.Fractribution.ATTRIBUTION_MODELS.keys())}"
         )
-
 
     return args
 
@@ -135,7 +140,8 @@ def get_channels(cs):
 
 def get_path_summary_data(cs):
     query = f"SELECT transformed_path, CAST(conversions AS FLOAT) AS conversions, CAST(non_conversions AS float) AS non_conversions, CAST(revenue AS float) AS revenue FROM {db_schema}.snowplow_fractribution_path_summary"
-    column_names = ['transformed_path', 'conversions', 'non_conversions', 'revenue']
+    column_names = ['transformed_path',
+                    'conversions', 'non_conversions', 'revenue']
 
     df = fetch_results_as_pandas_dataframe(cs, query, column_names)
     df = df.fillna("NULL")
@@ -153,30 +159,32 @@ def get_path_summary_data(cs):
 
 def create_attribution_report_table(cs):
     query = f"""
-        CREATE OR REPLACE TABLE {db_schema}.snowplow_fractribution_report_table AS
+        CREATE TABLE {db_schema}.snowplow_fractribution_report_table AS
         SELECT
             *,
-            coalesce(try_divide(revenue, spend), 0) AS roas
+            coalesce(revenue/nullif(spend, 0), 0) AS roas
         FROM
-            {db_schema}.snowplow_fractribution_channel_attribution
+            {db_schema}.snowplow_fractribution_channel_attribution a
         LEFT JOIN
-            {db_schema}.snowplow_fractribution_channel_spend USING (channel)
+            {db_schema}.snowplow_fractribution_channel_spend b USING (channel)
     """
 
-    column_names = ['conversionwindowstartdate', 'conversionwindowenddate', 'channel', 'conversions', 'revenue', 'roas']
-
-    return fetch_results_as_pandas_dataframe(cs, query, column_names)
+    column_names = ['conversionwindowstartdate', 'conversionwindowenddate',
+                    'channel', 'conversions', 'revenue', 'roas']
+    cs.execute(f"DROP TABLE IF EXISTS {db_schema}.snowplow_fractribution_report_table")
+    cs.execute(query)
+    return fetch_results_as_pandas_dataframe(cs, f"SELECT * FROM {db_schema}.snowplow_fractribution_report_table", column_names)
 
 
 def run_fractribution(params: Mapping[str, Any]) -> None:
-    """Runs fractribution on the Databricks tables.
+    """Runs fractribution on the Redshift tables.
 
     Args:
       params: Mapping of all template parameter names to values.
     """
 
     try:
-        cs, cnx = connect_to_databricks()
+        cs, cnx = connect_to_redshift()
         path_summary = get_path_summary_data(cs)
 
         # Extract the paths from the path_summary_table.
@@ -184,13 +192,15 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
         frac.run_fractribution(params["attribution_model"])
         frac.normalize_channel_to_attribution_names()
         path_list = frac._path_summary_to_list()
-        types = [{"revenue":"float"}, {"conversions": "float"}, {"non_conversions": "float"}, {"transformed_path": "string"}]
+        types = [{"revenue": "float"}, {"conversions": "float"}, {
+            "non_conversions": "float"}, {"transformed_path": "varchar(max)"}]
 
         # Exclude revenue, conversions, non_conversions, transformed_path
         channel_to_attribution = frac._get_channel_to_attribution()
-        un = set(channel_to_attribution.keys()).difference(["revenue", "conversions", "non_conversions", "transformed_path"])
+        un = set(channel_to_attribution.keys()).difference(
+            ["revenue", "conversions", "non_conversions", "transformed_path"])
 
-        attribution_types = [{k:"float"} for k in list(un)]
+        attribution_types = [{k: "float"} for k in list(un)]
         schema = types + attribution_types
 
         # Get column names to then create the base table with the specified data types above
@@ -203,9 +213,12 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
 
         text_column_types = ", ".join(column_types)
         text_columns = ", ".join(columns)
-        cs.execute(f"CREATE OR REPLACE TABLE {db_schema}.snowplow_fractribution_path_summary_with_channels ({text_column_types})")
+        cs.execute(f"DROP TABLE IF EXISTS {db_schema}.snowplow_fractribution_path_summary_with_channels")
+        cs.execute(
+            f"CREATE TABLE {db_schema}.snowplow_fractribution_path_summary_with_channels ({text_column_types})")
         if params["verbose"]:
-            print("Table snowplow_fractribution_path_summary_with_channels is created. Inserting data...")
+            print(
+                "Table snowplow_fractribution_path_summary_with_channels is created. Inserting data...")
 
         # Insert rows one at a time
         for dic in path_list:
@@ -223,7 +236,8 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
             cs.execute(sql)
 
         if params["verbose"]:
-            print("Uploading data to snowplow_fractribution_path_summary_with_channels finished.")
+            print(
+                f"Uploading data to {db_schema}.snowplow_fractribution_path_summary_with_channels finished.")
 
         conversion_window_start_date = params["conversion_window_start_date"]
         conversion_window_end_date = params["conversion_window_end_date"]
@@ -232,7 +246,9 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
         channel_to_revenue = frac._get_channel_to_revenue()
 
         # Create and populate table snowplow_fractribution_channel_attribution
-        cs.execute(f"CREATE OR REPLACE TABLE {db_schema}.snowplow_fractribution_channel_attribution (conversion_window_start_date string, conversion_window_end_date string, channel string, conversions decimal(10, 2), revenue decimal(10, 2))")
+        cs.execute(f"DROP TABLE IF EXISTS {db_schema}.snowplow_fractribution_channel_attribution")
+        cs.execute(
+            f"CREATE TABLE {db_schema}.snowplow_fractribution_channel_attribution (conversion_window_start_date varchar(max), conversion_window_end_date  varchar(max), channel  varchar(max), conversions decimal(10, 2), revenue decimal(10, 2))")
 
         rows = []
         for channel, attribution in channel_to_attribution.items():
@@ -245,7 +261,8 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
             }
             rows.append(row)
 
-        columns = ['conversion_window_start_date', 'conversion_window_end_date', 'channel', 'conversions', 'revenue']
+        columns = ['conversion_window_start_date',
+                   'conversion_window_end_date', 'channel', 'conversions', 'revenue']
         text_columns = ", ".join(columns)
 
         for dic in rows:
@@ -277,7 +294,7 @@ def run(input_params: Mapping[str, Any]) -> int:
       0 on success and non-zero otherwise
     """
 
-    cs, cnx = connect_to_databricks()
+    cs, cnx = connect_to_redshift()
 
     params = input_params
 
@@ -285,7 +302,6 @@ def run(input_params: Mapping[str, Any]) -> int:
     params["channel_counts_table"] = "snowplow_fractribution_channel_counts"
 
     channels = get_channels(cs)
-
 
     cs.close()
     cnx.close()

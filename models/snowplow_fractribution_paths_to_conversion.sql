@@ -25,6 +25,8 @@ with string_aggs as (
 
 )
 
+ {% if target.type not in ('redshift') %}
+
 , arrays as (
 
   select
@@ -33,6 +35,7 @@ with string_aggs as (
     revenue,
     {{ snowplow_utils.get_split_to_array('path', 's', ' > ') }} as path,
     {{ snowplow_utils.get_split_to_array('path', 's', ' > ') }} as transformed_path
+
 
   from string_aggs s
 
@@ -48,3 +51,27 @@ select
   {{ snowplow_utils.get_array_to_string('transformed_path', 'p', ' > ') }} as transformed_path
 
 from path_transforms p
+
+{% else %}
+
+, strings as (
+
+  select
+    customer_id,
+    conversion_tstamp,
+    revenue,
+    path as path,
+    path as transformed_path
+
+  from string_aggs s
+
+)
+
+  {{ transform_paths('conversions', 'strings') }}
+
+
+select *
+from path_transforms p
+
+
+{% endif %}

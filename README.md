@@ -20,7 +20,7 @@ The easiest way to get started is to follow our [QuickStart guide](https://docs.
 
 ### Adapter Support
 
-The latest version of the snowplow-fractribution package supports Snowflake, Databricks and BigQuery. For previous versions see our [package docs](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/).
+The latest version of the snowplow-fractribution package supports BigQuery, Databricks, Redshift and Snowflake. For previous versions see our [package docs](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/).
 
 ### Requirements
 
