@@ -32,7 +32,7 @@
 
       select
         1 as id,
-        array_agg(distinct cast(channel as {{ dbt.type_string() }})) as c
+        array_agg(distinct cast(channel as {{ snowplow_utils.type_max_string() }})) as c
 
       from {{ ref('snowplow_fractribution_channel_counts') }}
   )
@@ -47,5 +47,19 @@
     10000 as spend
 
   from unnesting
+
+{% endmacro %}
+
+
+{% macro redshift__channel_spend() %}
+
+  with channels as (
+
+      select distinct cast(channel as {{ snowplow_utils.type_max_string() }}), 10000 as spend
+
+      from {{ ref('snowplow_fractribution_channel_counts') }}
+  )
+
+ select * from channels
 
 {% endmacro %}

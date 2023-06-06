@@ -36,11 +36,11 @@
   {% elif transformation_type == 'remove_if_last_and_not_all' %}
     /* remove the matching path(s) from the tail unless it removes everything (obtaining the upper boundary of the
     slicing to do this is done by slicing the array and determining if it only contains the desired references which
-    it then returns an element for only if they are equivalent.) 
+    it then returns an element for only if they are equivalent.)
     Example:
         ["Example", "Another", "Direct", "Direct"]
         filter(y, (x, i) -> array_except(slice(reverse(y), 1, i), array('Direct'))==array())
-        
+
         Slice 1 (i=1): Direct.
         array_except yields [] as our array only contains 'Direct' references, comparison yields True
         Slice 2 (i=2): Direct, Direct
@@ -49,10 +49,10 @@
         array_except yields [Another], comparison yields False (element does not become part of the array)
         Slice 4 (i=4): Direct, Direct, Another, Example
         array_except yields [Another, Example], comparison yields False (element does not become part of the array)
-        
+
         At this point we can now count the size of this array - which gives us an index (from the back of the array) as to how many elements we can chop off - so to convert this to a an actual slice (as negative slicing sort of works in DB) we do:
         array_size(original) - array_size(direct_size) + 1
-        4 - 2 + 1 = 3   
+        4 - 2 + 1 = 3
     */
     case when array_distinct(transformed_path) != array('{{ transform_param }}')
     then slice(transformed_path, 1, array_size(transformed_path) - array_size(

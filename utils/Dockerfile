@@ -26,12 +26,20 @@ ENV databricks_server_hostname=${databricks_server_hostname}
 ENV databricks_http_path=${databricks_http_path}
 ENV databricks_token=${databricks_token}
 
+# Redshift-specific env variables
+ENV redshift_host=${redshift_host}
+ENV redshift_database=${redshift_database}
+ENV redshift_port=${redshift_port}
+ENV redshift_user=${redshift_user}
+ENV redshift_password=${redshift_password}
+
 WORKDIR /app
 
 COPY fractribution.py .
 COPY main_snowplow_bigquery.py .
 COPY main_snowplow_databricks.py .
 COPY main_snowplow_snowflake.py .
+COPY main_snowplow_redshift.py .
 COPY requirements.txt .
 
 RUN pip install -r requirements.txt
