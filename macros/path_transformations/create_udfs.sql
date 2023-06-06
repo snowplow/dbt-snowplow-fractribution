@@ -175,6 +175,202 @@
 
 {% endmacro %}
 
+{% macro redshift__create_udfs() %}
+
+  {% set trim_long_path %}
+  -- Returns the last snowplow__path_lookback_steps channels in the path if snowplow__path_lookback_steps > 0,
+  -- or the full path otherwise.
+  create or replace function {{target.schema}}.trim_long_path(path varchar, snowplow__path_lookback_steps integer)
+  returns varchar
+  stable
+  AS $$
+  path_list = path.split(' > ')
+  path_list_sliced= path_list[max(0, len(path_list) - snowplow__path_lookback_steps):]
+  if (snowplow__path_lookback_steps > 0):
+    return ' > '.join(path_list_sliced);
+
+  return path
+  $$ LANGUAGE plpythonu;
+  {% endset %}
+
+  -- Functions for applying transformations to path arrays.
+  -- unique_path: Identity transform.
+  --   E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, B, C, D, C, C].
+  -- exposure_path: Collapse sequential repeats.
+  --   E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C, D, C].
+  -- first_path: Removes repeated events.
+  --   E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C].
+  -- frequency_path: Removes repeat events but tracks them with a count.
+  --   E.g. [D, A, B, B, C, D, C, C] --> [D(2), A(1), B(2), C(3)).
+  -- remove_if_last_and_not_all: requires a channel to be added as a parameter, which gets removed from the latest paths unless it removes the whole path as it is trying to reach a non-matching channel parameter
+  --   E.g target element: `A`, path: `A → B → A → A` becomes `A → B`
+  -- remove_if_not_all: requires a channel to be added as a parameter, which gets removed from the path altogether unless it would result in the whole path's removal.
+  --   E.g target element: `A`, path: `A → B → A → A` becomes `B`
+
+
+  {% set remove_if_not_all %}
+  -- Returns the path with all copies of targetElem removed, unless the path consists only of
+  -- targetElems, in which case the original path is returned.
+  create or replace function {{target.schema}}.remove_if_not_all(path varchar, target_elem varchar)
+  returns varchar
+  stable
+  AS $$
+
+  transformed_path = []
+  path_list = path.split(' > ')
+
+  for i in range(len(path_list)):
+
+    if path_list[i] !=  target_elem:
+      transformed_path.append(path_list[i])
+
+  if len(transformed_path) == 0:
+    return(path)
+
+  else:
+    return(' > '.join(transformed_path))
+
+  $$ LANGUAGE plpythonu;
+
+  {% endset %}
+
+  {% set remove_if_last_and_not_all %}
+  -- Returns the path with all copies of targetElem removed from the tail, unless the path consists
+  -- only of targetElems, in which case the original path is returned.
+  create or replace function {{target.schema}}.remove_if_last_and_not_all(path varchar, target_elem varchar)
+  returns varchar
+  stable
+  AS $$
+
+  path_list = path.split(' > ')
+  reversed_path = list(reversed(path_list))
+  tail_index = 0
+  transformed_path = []
+
+
+  for i in range(len(path_list)):
+
+      if reversed_path[i] != target_elem:
+        break
+
+  tail_index = i
+
+  if tail_index > 0 and tail_index != len(path_list)-1:
+      transformed_path = path_list[:len(path_list)-tail_index]
+
+      return(' > '.join(transformed_path))
+
+  return(path)
+
+  $$ LANGUAGE plpythonu;
+  {% endset %}
+
+  {% set unique %}
+  -- Returns the unique/identity transform of the given path array.
+  -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, B, C, D, C, C].
+  create or replace function {{target.schema}}.unique_path(path varchar)
+  returns varchar
+  stable
+  AS $$
+
+  return(path)
+
+  $$ LANGUAGE plpythonu;
+  {% endset %}
+
+  {% set exposure %}
+  -- Returns the exposure transform of the given path array.
+  -- Sequential duplicates are collapsed.
+  -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C, D, C].
+
+  create or replace function {{target.schema}}.exposure_path(path varchar)
+  returns varchar
+  stable
+  AS $$
+
+  path_list = path.split(' > ')
+  transformed_path = []
+
+  for i in range(len(path_list)):
+
+      if i == 0 or path_list[i] != path_list[i-1]:
+          transformed_path.append(path_list[i])
+
+  return(' > '.join(transformed_path))
+
+  $$ LANGUAGE plpythonu;
+
+
+  {% endset %}
+
+  {% set first %}
+  -- Returns the first transform of the given path array.
+  -- Repeated channels are removed.
+  -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C].
+  create or replace function {{target.schema}}.first_path(path varchar)
+  returns varchar
+  stable
+  AS $$
+
+  transformed_path = []
+  path_list = path.split(' > ')
+
+  for i in range(len(path_list)):
+
+    if path_list[i] not in transformed_path:
+          transformed_path.append(path_list[i])
+
+  return(' > '.join(transformed_path))
+
+  $$ LANGUAGE plpythonu;
+
+  {% endset %}
+
+  {% set frequency %}
+  -- Returns the frequency transform of the given path array.
+  -- Repeat events are removed, but tracked with a count.
+  -- E.g. [D, A, B, B, C, D, C, C] --> [D(2), A(1), B(2), C(3)].
+  create or replace function {{target.schema}}.frequency_path(path varchar)
+  returns varchar
+  stable
+  AS $$
+
+  element_count = []
+  transformed_path = []
+  path_list = path.split(' > ')
+
+  for i in path_list:
+   element_count.append(i + '('  + str(path_list.count(i)) + ')')
+
+  for i in range(len(element_count)):
+
+    if element_count[i] not in transformed_path:
+          transformed_path.append(element_count[i])
+
+  return(' > '.join(transformed_path))
+
+  $$ LANGUAGE plpythonu;
+    {% endset %}
+
+
+    {% set create_schema %}
+        create schema if not exists {{target.schema}};
+    {% endset %}
+
+  -- create the udfs (as permanent UDFs)
+  {% do run_query(create_schema) %} -- run this FIRST before the rest get run
+  {% do run_query(trim_long_path) %}
+  {% do run_query(remove_if_not_all) %}
+  {% do run_query(remove_if_last_and_not_all) %}
+  {% do run_query(unique) %}
+  {% do run_query(exposure) %}
+  {% do run_query(first) %}
+  {% do run_query(frequency) %}
+  -- have to return some valid sql
+  select 1;
+
+{% endmacro %}
+
 
 {% macro spark__create_udfs() %}
 {% endmacro %}

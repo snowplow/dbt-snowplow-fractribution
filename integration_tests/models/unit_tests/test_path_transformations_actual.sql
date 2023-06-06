@@ -19,15 +19,28 @@ with raw_data as (
   from raw_data d
   )
 
+  {% if target.type == 'redshift' %}
+
+
   select
-    {{ snowplow_utils.get_array_to_string('raw_array', 'a', delimiter=', ') }} as raw_array,
-    {{ snowplow_utils.get_array_to_string('trim_long_path', 'a', delimiter=', ') }} as trim_long_path,
-    {{ snowplow_utils.get_array_to_string('trim_long_path2', 'a', delimiter=', ') }} as trim_long_path2,
-    {{ snowplow_utils.get_array_to_string('unique_path', 'a', delimiter=', ') }} as unique_path,
-    {{ snowplow_utils.get_array_to_string('frequency_path', 'a', delimiter=', ') }} as frequency_path,
-    {{ snowplow_utils.get_array_to_string('exposure_path', 'a', delimiter=', ') }} as exposure_path,
-    {{ snowplow_utils.get_array_to_string('first_path', 'a', delimiter=', ') }} as first_path,
-    {{ snowplow_utils.get_array_to_string('remove_if_not_all', 'a', delimiter=', ') }} as remove_if_not_all,
-    {{ snowplow_utils.get_array_to_string('remove_if_last_and_not_all', 'a', delimiter=', ') }} as remove_if_last_and_not_all
+     *
 
   from arrays a
+
+
+{% else %}
+
+  select
+    {{ snowplow_utils.get_array_to_string('raw_array', 'a', delimiter=' > ') }} as raw_array,
+    {{ snowplow_utils.get_array_to_string('trim_long_path', 'a', delimiter=' > ') }} as trim_long_path,
+    {{ snowplow_utils.get_array_to_string('trim_long_path2', 'a', delimiter=' > ') }} as trim_long_path2,
+    {{ snowplow_utils.get_array_to_string('unique_path', 'a', delimiter=' > ') }} as unique_path,
+    {{ snowplow_utils.get_array_to_string('frequency_path', 'a', delimiter=' > ') }} as frequency_path,
+    {{ snowplow_utils.get_array_to_string('exposure_path', 'a', delimiter=' > ') }} as exposure_path,
+    {{ snowplow_utils.get_array_to_string('first_path', 'a', delimiter=' > ') }} as first_path,
+    {{ snowplow_utils.get_array_to_string('remove_if_not_all', 'a', delimiter=' > ') }} as remove_if_not_all,
+    {{ snowplow_utils.get_array_to_string('remove_if_last_and_not_all', 'a', delimiter=' > ') }} as remove_if_last_and_not_all
+
+  from arrays a
+
+{% endif %}

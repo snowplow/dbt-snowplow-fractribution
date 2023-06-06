@@ -1,14 +1,14 @@
 with data as (
 
-  select 'Example, Video, Direct, Direct' as path
+  select 'Example > Video > Direct > Direct' as path
 
   union all
 
-  select 'Direct, Direct' as path
+  select 'Direct > Direct' as path
 
   union all
 
-  select 'a, a, a, Direct, a, Direct, Direct'
+  select 'a > a > a > Direct > a > Direct > Direct'
 
     union all
 
@@ -20,26 +20,38 @@ with data as (
 
   union all
 
-  select 'Example, Video, Direct' as path
+  select 'Example > Video > Direct' as path
 
   union all
 
-  select 'Example, Video, ' as path
+  select 'Example > Video > ' as path
 
 )
 
-, make_it_array as (
+{% if target.type == 'redshift' %}
+
+, final_form as (
 
   select
-     {{ snowplow_utils.get_split_to_array('path', 'd', ', ') }} as transformed_path
+     path as transformed_path
 
   from data d
 )
 
+{% else %}
 
+, final_form as (
+
+  select
+     {{ snowplow_utils.get_split_to_array('path', 'd', ' > ') }} as transformed_path
+
+  from data d
+)
+
+{% endif %}
 
 select
 
  *
 
-from make_it_array
+from final_form
