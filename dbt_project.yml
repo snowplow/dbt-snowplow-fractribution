@@ -1,6 +1,6 @@
 
 name: 'snowplow_fractribution'
-version: '0.3.0'
+version: '0.3.1'
 config-version: 2
 
 require-dbt-version: [">=1.4.0", "<2.0.0"]
