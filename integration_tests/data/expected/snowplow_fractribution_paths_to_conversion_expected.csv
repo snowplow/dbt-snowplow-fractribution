@@ -1,7 +1,7 @@
 customer_id,conversion_tstamp,revenue,path,transformed_path
-ff0005094333993051683,2022-07-30 12:55:24.000,24.0,Direct > Direct,Direct
-ff0008284662789123943,2022-07-07 14:05:55.000,200.0,Video,Video
-ff0006911334202687206,2022-07-19 05:26:51.000,66.5,Organic_Search > Organic_Search,Organic_Search
-ff0006148050225777094,2022-07-25 08:52:34.000,140.0,Organic_Search > Organic_Search > Organic_Search,Organic_Search
-ff000170187170673177,2022-06-08 21:18:32.000,50.0,Direct > Direct,Direct
-ff0009028775170427694,2022-06-11 16:33:03.000,20.42,Direct,Direct
+ff0009028775170427694,2022-06-11 16:33:03,20.42,Direct,Direct
+ff0005094333993051683,2022-07-30 12:55:24,24,Direct > Direct,Direct
+ff000170187170673177,2022-06-08 21:18:32,50,Direct > Direct,Direct
+ff0006148050225777094,2022-07-25 08:52:34,140,Organic_Search > Organic_Search > Direct,Organic_Search > Direct
+ff0008284662789123943,2022-07-07 14:05:55,200,Video,Video
+ff0006911334202687206,2022-07-19 05:26:51,66.5,Organic_Search > Organic_Search,Organic_Search

@@ -64,6 +64,7 @@ vars:
     snowplow__consider_intrasession_channels: false
     snowplow__page_views_source: '{{target.schema}}_derived.snowplow_web_page_views'
     snowplow__conversions_source: "{{ ref('snowplow_fractribution_events_stg') }}"
+    snowplow__run_python_script_in_snowpark: true
 
 seeds:
   quote_columns: false
@@ -203,6 +204,12 @@ seeds:
           load_tstamp: timestamp
 
     expected:
+      snowplow_fractribution_channel_attribution_expected:
+        conversion_window_start_date: date
+        conversion_window_end_date: date
+        channel: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
+        conversions: float
+        revenue: float
       snowplow_fractribution_channel_counts_expected:
         channel: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
         campaign: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
@@ -221,6 +228,14 @@ seeds:
         conversions: float
         non_conversions: float
         revenue: float
+      snowplow_fractribution_path_summary_with_channels_expected:
+        revenue: float
+        conversions: float
+        non_conversions: float
+        transformed_path: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
+        organic_search: float
+        video: float
+        direct: float
       snowplow_fractribution_paths_to_conversion_expected:
         customer_id: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
         conversion_tstamp: timestamp
@@ -231,6 +246,14 @@ seeds:
         customer_id: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
         path: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
         transformed_path: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
+      snowplow_fractribution_report_table_expected:
+        channel: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
+        conversion_window_start_date: date
+        conversion_window_end_date: date
+        conversions: float
+        revenue: float
+        spend: float
+        roas: float
       snowplow_fractribution_sessions_by_customer_id_expected:
         customer_id: "{{ 'string' if target.type in ['bigquery', 'databricks', 'spark'] else 'varchar' }}"
         visit_start_tstamp: timestamp

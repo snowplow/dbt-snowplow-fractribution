@@ -5,41 +5,95 @@ models:
     tests:
       - dbt_utils.equal_rowcount:
           compare_model: ref('snowplow_fractribution_channel_counts_expected_stg')
-      - dbt_utils.equality:
+      - snowplow_fractribution_integration_tests.equality:
           compare_model: ref('snowplow_fractribution_channel_counts_expected_stg')
+          precision: 4
   - name: snowplow_fractribution_channel_spend_actual
     tests:
       - dbt_utils.equal_rowcount:
           compare_model: ref('snowplow_fractribution_channel_spend_expected_stg')
-      - dbt_utils.equality:
+      - snowplow_fractribution_integration_tests.equality:
           compare_model: ref('snowplow_fractribution_channel_spend_expected_stg')
+          precision: 4
   - name: snowplow_fractribution_conversions_by_customer_id_actual
     tests:
       - dbt_utils.equal_rowcount:
           compare_model: ref('snowplow_fractribution_conversions_by_customer_id_expected_stg')
-      - dbt_utils.equality:
+      - snowplow_fractribution_integration_tests.equality:
           compare_model: ref('snowplow_fractribution_conversions_by_customer_id_expected_stg')
+          precision: 4
   - name: snowplow_fractribution_path_summary_actual
     tests:
       - dbt_utils.equal_rowcount:
           compare_model: ref('snowplow_fractribution_path_summary_expected_stg')
-      - dbt_utils.equality:
+      - snowplow_fractribution_integration_tests.equality:
           compare_model: ref('snowplow_fractribution_path_summary_expected_stg')
+          precision: 4
   - name: snowplow_fractribution_paths_to_conversion_actual
     tests:
       - dbt_utils.equal_rowcount:
           compare_model: ref('snowplow_fractribution_paths_to_conversion_expected_stg')
-      - dbt_utils.equality:
+      - snowplow_fractribution_integration_tests.equality:
           compare_model: ref('snowplow_fractribution_paths_to_conversion_expected_stg')
+          precision: 4
   - name: snowplow_fractribution_paths_to_non_conversion_actual
     tests:
       - dbt_utils.equal_rowcount:
           compare_model: ref('snowplow_fractribution_paths_to_non_conversion_expected_stg')
-      - dbt_utils.equality:
+      - snowplow_fractribution_integration_tests.equality:
           compare_model: ref('snowplow_fractribution_paths_to_non_conversion_expected_stg')
+          precision: 4
   - name: snowplow_fractribution_sessions_by_customer_id_actual
     tests:
       - dbt_utils.equal_rowcount:
           compare_model: ref('snowplow_fractribution_sessions_by_customer_id_expected_stg')
-      - dbt_utils.equality:
+      - snowplow_fractribution_integration_tests.equality:
           compare_model: ref('snowplow_fractribution_sessions_by_customer_id_expected_stg')
+          precision: 4
+  - name: snowplow_fractribution_channel_attribution_actual
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('snowplow_fractribution_channel_attribution_expected_stg')
+          config:
+            enabled: "{{target.type == 'snowflake'}}"
+      - snowplow_fractribution_integration_tests.equality:
+          compare_model: ref('snowplow_fractribution_channel_attribution_expected_stg')
+          precision: 4
+          ignore_columns:
+            - ATTRIBUTION_TYPE
+          config:
+            enabled: "{{target.type == 'snowflake'}}"
+  - name: snowplow_fractribution_path_summary_with_channels_actual
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('snowplow_fractribution_path_summary_with_channels_expected_stg')
+          config:
+            enabled: "{{target.type == 'snowflake'}}"
+      - snowplow_fractribution_integration_tests.equality:
+          compare_model: ref('snowplow_fractribution_path_summary_with_channels_expected_stg')
+          precision: 4
+          ignore_columns:
+            - ATTRIBUTION_TYPE
+          config:
+            enabled: "{{target.type == 'snowflake'}}"
+  - name: snowplow_fractribution_report_table_actual
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('snowplow_fractribution_report_table_expected_stg')
+          config:
+            enabled: "{{target.type == 'snowflake'}}"
+      - snowplow_fractribution_integration_tests.equality:
+          compare_model: ref('snowplow_fractribution_report_table_expected_stg')
+          precision: 4
+          ignore_columns:
+            - ATTRIBUTION_TYPE
+          config:
+            enabled: "{{target.type == 'snowflake'}}"
+
+sources:
+  - name: python_created_tables
+    schema: "{{target.schema}}_derived" # Hardcode _derived to select correct schema
+    tables:
+      - name: snowplow_fractribution_channel_attribution
+      - name: snowplow_fractribution_path_summary_with_channels
+      - name: snowplow_fractribution_report_table
