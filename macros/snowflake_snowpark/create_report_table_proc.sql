@@ -1,24 +1,37 @@
-# coding=utf-8
-# Copyright 2022-2023 Snowplow, Google LLC..
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+{% macro create_report_table_proc() %}
+  {{ return(adapter.dispatch('create_report_table_proc', 'snowplow_fractribution')()) }}
+{% endmacro %}
 
-"""Library for computing fractional attribution."""
+{% macro default__create_report_table_proc() %}
+{% endmacro %}
+
+{% macro snowflake__create_report_table_proc() %}
+{% if execute %}
+{% set stored_proc %}
+create or replace procedure {{schema}}.create_report_table(attribution_model STRING, conversion_window_start_date STRING, conversion_window_end_date STRING)
+  returns int
+  language python
+  runtime_version = '3.8'
+  packages = ('snowflake-snowpark-python')
+  handler = 'standalone_main'
+as
+$$
+
+"""Creates the data needed to run Fractribution in Snowflake.
+It produces the following output tables in the data warehouse:
+
+snowplow_fractribution_path_summary_with_channels
+snowplow_fractribution_report_table
+snowplow_fractribution_channel_attribution"""
 
 import io
 import json
+import os
 import re
-from typing import Iterable, List, Mapping, Tuple
+from typing import Iterable, List, Mapping, Tuple, Any
+
+from snowflake.snowpark import Session
+from snowflake.snowpark.types import DecimalType, StructField, StructType, StringType, IntegerType
 
 
 
@@ -112,7 +125,7 @@ class Fractribution(object):
                 marginal_contributions[i] = max(raw_marginal_contribution, 0)
         return marginal_contributions
 
-    def run_fractribution(self, attribution_model: str) -> None:
+    def run_fractribution(self, session, attribution_model: str) -> None:
         """Runs Fractribution with the given attribution_model.
 
         Side-effect: Updates channel_to_attribution dicts in _path_tuple_to_summary.
@@ -133,10 +146,9 @@ class Fractribution(object):
 
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             # Ignore empty paths, which can happen when there is a conversion, but
-            # no matching marketing channel events. 
+            # no matching marketing channel events.
             # Commented out the below condition that ignores paths with no conversions, as spend on channels with 
             # no conversions is important to include
-            # or not path_summary.conversions:
             if not path_tuple: 
                 continue
             path_summary.channel_to_attribution = {}
@@ -337,3 +349,168 @@ class Fractribution(object):
         "position_based": run_position_based_attribution,
         "linear": run_linear_attribution,
     }
+
+
+VALID_CHANNEL_NAME_PATTERN = re.compile(r"^[a-zA-Z_]\w+$", re.ASCII)
+
+def _is_valid_column_name(column_name: str) -> bool:
+    """Returns True if the column_name is a valid Snowflake column name."""
+
+    return (
+        len(column_name) <= 255
+        and VALID_CHANNEL_NAME_PATTERN.match(column_name) is not None
+    )
+
+
+def _extract_channels(client) -> List[str]:
+    """Returns the list of names by running extract_channels.sql.
+
+    Args:
+      client: Client.
+      params: Mapping of template parameter names to values.
+    Returns:
+      List of channel names.
+    Raises:
+      ValueError: User-formatted error if channel is not a valid Snowflake column.
+    """
+
+    channels = [row.CHANNEL for row in client]
+    for channel in channels:
+        if not _is_valid_column_name(channel):
+            raise ValueError("Channel is not a legal Snowflake column name: ", channel)
+    return channels
+
+
+def get_channels(session):
+    """Enumerates all possible channels."""
+    query = """SELECT DISTINCT channel FROM snowplow_fractribution_channel_counts"""
+
+    return session.sql(query).collect()
+
+
+def get_path_summary_data(session):
+    query = """
+        SELECT transformed_path, CAST(conversions AS FLOAT) AS conversions, CAST(non_conversions AS float) AS non_conversions, CAST(revenue AS float) AS revenue
+        FROM snowplow_fractribution_path_summary
+        """
+
+    return session.sql(query).collect()
+
+
+def create_attribution_report_table(session):
+    query = f"""
+        CREATE OR REPLACE TABLE snowplow_fractribution_report_table AS
+        SELECT
+            *,
+            DIV0(revenue, spend) AS roas
+        FROM
+            snowplow_fractribution_channel_attribution
+            LEFT JOIN
+            snowplow_fractribution_channel_spend USING (channel)
+    """
+
+    return session.sql(query).collect()
+
+
+def run_fractribution(session, params: Mapping[str, Any]) -> None:
+    """Runs fractribution on the Snowflake tables.
+
+    Args:
+      params: Mapping of all template parameter names to values.
+    """
+
+
+    path_summary = get_path_summary_data(session)
+
+    # Step 1: Extract the paths from the path_summary_table.
+    frac = Fractribution(path_summary)
+
+    frac.run_fractribution(session, params["attribution_model"])
+
+    frac.normalize_channel_to_attribution_names()
+
+    path_list = frac._path_summary_to_list()
+    types = [
+        StructField("revenue", DecimalType(10,2)),
+        StructField("conversions", DecimalType(10,3)),
+        StructField("non_conversions", DecimalType(10,3)),
+        StructField("transformed_path", StringType())
+    ]
+
+    # exclude revenue, conversions, non_conversions, transformed_path
+    channel_to_attribution = frac._get_channel_to_attribution()
+    un = set(channel_to_attribution.keys()).difference(["revenue", "conversions", "non_conversions", "transformed_path"])
+    attribution_types = [StructField(k, DecimalType(10,3)) for k in list(un)]
+    schema = types + attribution_types
+
+    paths = session.create_dataframe(path_list, schema=StructType(schema))
+
+    paths.write.mode("overwrite").save_as_table("snowplow_fractribution_path_summary_with_channels")
+
+    conversion_window_start_date = params["conversion_window_start_date"]
+    conversion_window_end_date = params["conversion_window_end_date"]
+
+    channel_to_attribution = frac._get_channel_to_attribution()
+    channel_to_revenue = frac._get_channel_to_revenue()
+    rows = []
+    for channel, attribution in channel_to_attribution.items():
+        row = {
+            "conversion_window_start_date": conversion_window_start_date,
+            "conversion_window_end_date": conversion_window_end_date,
+            "channel": channel,
+            "conversions": attribution,
+            "revenue": channel_to_revenue.get(channel, 0.0),
+        }
+        rows.append(row)
+
+    channel_attribution = session.create_dataframe(rows)
+    channel_attribution.write.mode("overwrite").save_as_table("snowplow_fractribution_channel_attribution")
+
+    report = create_attribution_report_table(session)
+
+
+
+
+def run(session, input_params: Mapping[str, Any]) -> int:
+    """Main entry point to run Fractribution with the given input_params.
+
+    Args:
+      input_params: Mapping from input parameter names to values.
+    Returns:
+      0 on success and non-zero otherwise
+    """
+    params = input_params
+
+    # assumes that the dataset already exists
+    params["channel_counts_table"] = "snowplow_fractribution_channel_counts"
+
+    
+
+    channels = get_channels(session)
+
+
+    params["channels"] = _extract_channels(channels)
+
+    run_fractribution(session, params)
+
+    return 0
+
+
+def standalone_main(session, attribution_model, conversion_window_start_date, conversion_window_end_date):
+    input_params = {
+        "attribution_model": attribution_model,
+        "conversion_window_start_date": conversion_window_start_date,
+        "conversion_window_end_date": conversion_window_end_date
+    }
+    run(session, input_params)
+    print("Report table created")
+
+
+
+$$;
+{% endset %}
+
+{% do run_query(stored_proc) %}
+{% endif %}
+
+{% endmacro %}

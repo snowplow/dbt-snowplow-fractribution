@@ -1,3 +1,17 @@
+snowplow-fractribution 0.3.1 (2023-0X-XX)
+---------------------------------------
+## Summary
+This version adds the ability for users on Snowflake to run the attribution modeling script via Snowpark so all processing is done by the package.
+
+## Features
+- Add the option to run python modeling on Snowpark for Snowflake users
+
+## Docs
+- Tidied package variable scope
+
+## Upgrading
+Bump the snowplow-fractribution version in your `packages.yml` file, to use the new Snowpark feature be sure to set the `snowplow__run_python_script_in_snowpark` and `snowplow__attribution_model_for_snowpark` variables.
+
 snowplow-fractribution 0.3.0 (2023-03-29)
 ---------------------------------------
 ## Summary

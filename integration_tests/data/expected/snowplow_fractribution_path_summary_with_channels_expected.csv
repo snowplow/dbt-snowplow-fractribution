@@ -1,0 +1,19 @@
+REVENUE,CONVERSIONS,NON_CONVERSIONS,TRANSFORMED_PATH,VIDEO,ORGANIC_SEARCH,PAID_SEARCH_OTHER,UNMATCHED_CHANNEL,REFERRAL,DIRECT,ATTRIBUTION_TYPE
+94.42,3,25,Direct,,,,,,1,shapley
+66.5,1,26,Organic_Search,,1,,,,,shapley
+,0,1,Referral > Direct,,,,,0,1,shapley
+200,1,2,Video,1,,,,,,shapley
+,0,2,Organic_Search > Paid_Search_Other,,0,1,,,,shapley
+,0,2,Referral,,,,,1,,shapley
+140,1,1,Organic_Search > Direct,,0.459,,,,0.541,shapley
+,0,1,Paid_Search_Other,,,1,,,,shapley
+,0,1,Unmatched_Channel,,,,1,,,shapley
+94.42,3,25,Direct,,,,,,1,last_touch
+66.5,1,26,Organic_Search,,1,,,,,last_touch
+,0,1,Referral > Direct,,,,,0,1,last_touch
+200,1,2,Video,1,,,,,,last_touch
+,0,2,Organic_Search > Paid_Search_Other,,0,1,,,,last_touch
+,0,2,Referral,,,,,1,,last_touch
+140,1,1,Organic_Search > Direct,,0,,,,1,last_touch
+,0,1,Paid_Search_Other,,,1,,,,last_touch
+,0,1,Unmatched_Channel,,,,1,,,last_touch
