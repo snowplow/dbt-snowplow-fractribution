@@ -93,3 +93,6 @@ models:
         description: Marketing source
       - name: medium
         description: Marketing medium
+
+  - name: snowplow_fractribution_call_snowpark_macros
+    description: Model to trigger the Snowpark macros for producing the 3 attribution model output tables

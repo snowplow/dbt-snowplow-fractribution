@@ -1,6 +1,6 @@
 channel,campaign,source,medium,number_of_sessions
-Direct,(not set),(direct),(none),45
-Organic_Search,(not set),google,organic,40
+Direct,(not set),(direct),(none),46
+Organic_Search,(not set),google,organic,39
 Paid_Search_Other,AW - Accessories,google,cpc,2
 Paid_Search_Other,AW - Dynamic Search Ads Whole Site,google,cpc,1
 Referral,(not set),support.google.com,referral,2

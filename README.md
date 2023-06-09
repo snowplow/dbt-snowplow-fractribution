@@ -9,7 +9,7 @@
 
 This dbt package:
 - Uses page view and conversion events to perform Attribution Modelling on your Snowplow data
-- Is used in conjunction with a Python script or Docker image to create the final output table
+- Is used in conjunction with a Python script or Docker image to create the final output table. If using Snowflake, the Python script can instead be automatically run using Snowpark.
 - Is designed to be customized, allowing you to easily make modifications to suit your data and objectives
 
 Please refer to the [doc site](https://docs.snowplow.io/docs/modeling-your-data/modeling-your-data-with-dbt/dbt-models/dbt-fractribution-data-model/) for a full breakdown of the package.
