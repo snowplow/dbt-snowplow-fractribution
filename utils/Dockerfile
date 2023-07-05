@@ -32,6 +32,7 @@ ENV redshift_database=${redshift_database}
 ENV redshift_port=${redshift_port}
 ENV redshift_user=${redshift_user}
 ENV redshift_password=${redshift_password}
+ENV redshift_schema=${redshift_schema}
 
 WORKDIR /app
 
