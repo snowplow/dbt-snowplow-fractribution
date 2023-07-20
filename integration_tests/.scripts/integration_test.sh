@@ -34,37 +34,37 @@ for db in ${DATABASES[@]}; do
 
   echo "Snowplow Web: Execute models"
 
-  eval "dbt run --select snowplow_web --target $db --full-refresh --vars '{snowplow__allow_refresh: true}'" || exit 1;
-  
+  eval "dbt run --select snowplow_web --full-refresh --vars '{snowplow__allow_refresh: true}' --target $db" || exit 1;
+
   if [[ $db == "snowflake" ]]; then
     for model in ${ATTRIBUTION_MODELS_TO_TEST[@]}; do
       echo "Snowplow Fractribution integration tests: Execute fractribution models"
 
-      eval "dbt run --select snowplow_fractribution --target $db --full-refresh --vars '{snowplow__attribution_model_for_snowpark: $model}'" || exit 1;
-  
+      eval "dbt run --select snowplow_fractribution --full-refresh --vars '{snowplow__attribution_model_for_snowpark: $model}' --target $db" || exit 1;
+
       echo "Snowplow Fractribution integration tests: Execute fractribution integration test models for $model"
 
-      eval "dbt run --select snowplow_fractribution_integration_tests --target $db --full-refresh --vars '{snowplow__attribution_model_for_snowpark: $model}'" || exit 1;
+      eval "dbt run --select snowplow_fractribution_integration_tests --full-refresh --vars '{snowplow__attribution_model_for_snowpark: $model}' --target $db" || exit 1;
 
       echo "Snowplow Fractribution integration tests: Test models for $model"
 
-      eval "dbt test --target $db --exclude snowplow_web" || exit 1;
-      
+      eval "dbt test --exclude snowplow_web --target $db" || exit 1;
+
       echo "Snowplow Fractribution integration tests for $model: All tests passed"
     done
-    
+
   else
     echo "Snowplow Fractribution integration tests: Execute fractribution models"
 
-    eval "dbt run --select snowplow_fractribution --target $db --full-refresh" || exit 1;
-    
+    eval "dbt run --select snowplow_fractribution --full-refresh --target $db" || exit 1;
+
     echo "Snowplow Fractribution integration tests: Execute fractribution integration test models"
 
-    eval "dbt run --select snowplow_fractribution_integration_tests --target $db --full-refresh" || exit 1;
+    eval "dbt run --select snowplow_fractribution_integration_tests --full-refresh --target $db" || exit 1;
 
     echo "Snowplow Fractribution integration tests: Test models"
 
-    eval "dbt test --target $db --exclude snowplow_web" || exit 1;
+    eval "dbt test --exclude snowplow_web  --target $db" || exit 1;
 
     echo "Snowplow Fractribution integration tests: All tests passed"
   fi

@@ -40,7 +40,8 @@ vars:
     # Overwrite these source table vars in your own dbt_project.yml if not using these defaults:
     snowplow__page_views_source: "{{ source('derived', 'snowplow_web_page_views') }}"
     snowplow__conversions_source: "{{ source('atomic', 'events') }}"
-
+    snowplow__conversions_source_filter: '' # a timestamp field the conversion source field is partitioned on (ideally) for optimized filtering, when left blank derived_tstamp is used
+    snowplow__conversions_source_filter_buffer_days: 1 # the number of days to extend the filter
     # snowplow__web_user_mapping_table: derived.snowplow_web_user_mapping # path (schema and table) to the Snowplow web user mapping table
 
     # Snowflake only
