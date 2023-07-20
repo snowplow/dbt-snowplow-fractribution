@@ -24,3 +24,5 @@ from {{ var('snowplow__conversions_source' )}} as events
 where {{ conversion_clause() }}
   and date(derived_tstamp) >= '{{ get_lookback_date_limits("min") }}'
   and date(derived_tstamp) <= '{{ get_lookback_date_limits("max") }}'
+  and date({{ var('snowplow__conversions_source_filter') }}) >= {{ dateadd('day',-var('snowplow__conversions_source_filter_buffer_days'), "'"~get_lookback_date_limits('min')~"'") }}
+  and date({{ var('snowplow__conversions_source_filter') }}) <= {{ dateadd('day', var('snowplow__conversions_source_filter_buffer_days'),"'"~get_lookback_date_limits('max')~"'") }}
