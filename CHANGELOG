@@ -1,3 +1,14 @@
+snowplow-fractribution 0.3.2 (2023-07-25)
+---------------------------------------
+## Summary
+This version allows the user to filter their events table using the timestamp field that the table is partitioned on, optimizing query performance.
+
+## Features
+- snowplow_fractribution_conversions_by_customer_id should allow extra filter column with buffer (Close #17)
+
+## Upgrading
+Bump the snowplow-fractribution version in your `packages.yml` file.
+
 snowplow-fractribution 0.3.1 (2023-06-12)
 ---------------------------------------
 ## Summary
@@ -20,7 +31,7 @@ This version migrates our models away from the `snowplow_incremental_materializa
 
 ## 🚨 Breaking Changes 🚨
 ### Changes to materialization
-To take advantage of the optimization we apply to the `incremental` materialization, users will need to add the following to their `dbt_project.yml` : 
+To take advantage of the optimization we apply to the `incremental` materialization, users will need to add the following to their `dbt_project.yml` :
 ```yaml
 # dbt_project.yml
 ...
