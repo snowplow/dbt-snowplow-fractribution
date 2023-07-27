@@ -9,6 +9,7 @@
     {{ exceptions.raise_compiler_error("Error: var('conversion_host') needs to be set!") }}
 {% endif %}
 
+with base_data as (
 select
   case when page_views.user_id is not null and page_views.user_id != '' then 'u' || page_views.user_id -- use event user_id
   {% if var('snowplow__use_snowplow_web_user_mapping_table') %}
@@ -50,8 +51,13 @@ page_urlhost in ({{ snowplow_utils.print_list(var('snowplow__conversion_hosts'))
   -- yields one row per session (last touch)
   and page_view_in_session_index = 1 -- takes the first page view in the session
 {% endif %}
+)
 
+select
+  *
+from
+  base_data
 {% if var('snowplow__channels_to_exclude') %}
     -- Filters out any unwanted channels
-    and channel not in ({{ snowplow_utils.print_list(var('snowplow__channels_to_exclude')) }})
+    where channel not in ({{ snowplow_utils.print_list(var('snowplow__channels_to_exclude')) }})
 {% endif %}
