@@ -65,6 +65,7 @@ vars:
     snowplow__page_views_source: '{{target.schema}}_derived.snowplow_web_page_views'
     snowplow__conversions_source: "{{ ref('snowplow_fractribution_events_stg') }}"
     snowplow__run_python_script_in_snowpark: true
+    snowplow__channels_to_exclude: ['fake_channel']
 
 seeds:
   quote_columns: false
