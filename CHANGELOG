@@ -1,3 +1,14 @@
+snowplow-fractribution 0.3.3 (2023-07-27)
+---------------------------------------
+## Summary
+This version adds a fix for BigQuery to allow you to correctly filter channels using the `snowplow__channels_to_exclude` variable.
+
+## Features
+- Fix channel filtering BQ bug
+
+## Upgrading
+Bump the snowplow-fractribution version in your `packages.yml` file.
+
 snowplow-fractribution 0.3.2 (2023-07-25)
 ---------------------------------------
 ## Summary
