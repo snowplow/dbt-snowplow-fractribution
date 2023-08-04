@@ -136,6 +136,7 @@ def create_attribution_report_table():
             LEFT JOIN
             {project_id}.{dataset}.snowplow_fractribution_channel_spend USING (channel)
     """
+    print(f"Table {dataset}.snowplow_fractribution_report_table created")
 
     return client.query(query)
 
@@ -169,11 +170,17 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
 
     paths_table = bigquery.Table(f"{project_id}.{dataset}.snowplow_fractribution_path_summary_with_channels", schema)
     table = client.create_table(paths_table, exists_ok=True)
+    print(f"Table {dataset}.snowplow_fractribution_path_summary_with_channels created")
 
     # Load data into BigQuery
     job_config=bigquery.LoadJobConfig()
     job_config.write_disposition="WRITE_TRUNCATE"
+    if params["verbose"]:
+        print(path_list)
     client.load_table_from_json(path_list, table, job_config)
+
+    if params["verbose"]:
+        print("Uploading data to snowplow_fractribution_path_summary_with_channels finished")
 
     conversion_window_start_date = params["conversion_window_start_date"]
     conversion_window_end_date = params["conversion_window_end_date"]
@@ -202,15 +209,16 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
 
     channel_attribution_table = bigquery.Table(f"{project_id}.{dataset}.snowplow_fractribution_channel_attribution", schema)
     table = client.create_table(channel_attribution_table, exists_ok=True)
-    if params["verbose"]:
-        print("Table snowplow_fractribution_path_summary_with_channels is created. Inserting data...")
+    print(f"Table {dataset}.snowplow_fractribution_channel_attribution created")
 
     # Load data into BigQuery
     jc=bigquery.LoadJobConfig()
     jc.write_disposition="WRITE_TRUNCATE"
+    if params["verbose"]:
+        print(rows)
     client.load_table_from_json(rows, table, job_config=jc)
     if params["verbose"]:
-        print("Uploading data to snowplow_fractribution_path_summary_with_channels finished.")
+        print("Uploading data to snowplow_fractribution_channel_attribution finished")
 
     report = create_attribution_report_table()
 
@@ -245,7 +253,6 @@ def standalone_main(args):
         "verbose": args.verbose,
     }
     run(input_params)
-    print("Report table created")
 
 
 if __name__ == "__main__":

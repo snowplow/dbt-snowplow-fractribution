@@ -165,6 +165,7 @@ def create_attribution_report_table(cs):
 
     column_names = ['conversionwindowstartdate', 'conversionwindowenddate', 'channel', 'conversions', 'revenue', 'roas']
 
+    print(f"Table {db_schema}.snowplow_fractribution_report_table created")
     return fetch_results_as_pandas_dataframe(cs, query, column_names)
 
 
@@ -204,8 +205,8 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
         text_column_types = ", ".join(column_types)
         text_columns = ", ".join(columns)
         cs.execute(f"CREATE OR REPLACE TABLE {db_schema}.snowplow_fractribution_path_summary_with_channels ({text_column_types})")
-        if params["verbose"]:
-            print("Table snowplow_fractribution_path_summary_with_channels is created. Inserting data...")
+
+        print(f"Table {db_schema}.snowplow_fractribution_path_summary_with_channels created")
 
         # Insert rows one at a time
         for dic in path_list:
@@ -220,6 +221,8 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
                     except BaseException as error:
                         values.append("NULL")
             sql += ", ".join(values) + ")"
+            if params["verbose"]:
+                print(sql)
             cs.execute(sql)
 
         if params["verbose"]:
@@ -233,7 +236,7 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
 
         # Create and populate table snowplow_fractribution_channel_attribution
         cs.execute(f"CREATE OR REPLACE TABLE {db_schema}.snowplow_fractribution_channel_attribution (conversion_window_start_date string, conversion_window_end_date string, channel string, conversions decimal(10, 2), revenue decimal(10, 2))")
-
+        print(f"Table {db_schema}.snowplow_fractribution_channel_attribution created")
         rows = []
         for channel, attribution in channel_to_attribution.items():
             row = {
@@ -257,6 +260,8 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
                 else:
                     values.append("\'"+str(dic[col])+"\'")
             sql += ", ".join(values) + ")"
+            if params["verbose"]:
+                print(sql)
             cs.execute(sql)
 
         report = create_attribution_report_table(cs)
@@ -305,7 +310,6 @@ def standalone_main(args):
         "verbose": args.verbose,
     }
     run(input_params)
-    print("Report table created")
 
 
 if __name__ == "__main__":

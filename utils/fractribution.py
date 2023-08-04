@@ -127,17 +127,17 @@ class Fractribution(object):
 
         Side-effect: Updates channel_to_attribution dicts in _path_tuple_to_summary.
         """
-        print("running shapley attribution...")
+        print("Running shapley attribution...")
 
         print("input items:", len(self._path_tuple_to_summary.items()))
 
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             # Ignore empty paths, which can happen when there is a conversion, but
-            # no matching marketing channel events. 
-            # Commented out the below condition that ignores paths with no conversions, as spend on channels with 
+            # no matching marketing channel events.
+            # Commented out the below condition that ignores paths with no conversions, as spend on channels with
             # no conversions is important to include
             # or not path_summary.conversions:
-            if not path_tuple: 
+            if not path_tuple:
                 continue
             path_summary.channel_to_attribution = {}
             marginal_contributions = self._get_counterfactual_marginal_contributions(
@@ -164,7 +164,7 @@ class Fractribution(object):
 
         Side-effect: Updates channel_to_attribution dicts in _path_tuple_to_summary.
         """
-        print("running first_touch attribution...")
+        print("Running first_touch attribution...")
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             path_summary.channel_to_attribution = {}
             if not path_tuple:
@@ -178,7 +178,7 @@ class Fractribution(object):
 
         Side-effect: Updates channel_to_attribution dicts in _path_tuple_to_summary.
         """
-        print("running last_touch attribution...")
+        print("Running last_touch attribution...")
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             path_summary.channel_to_attribution = {}
             if not path_tuple:
@@ -192,7 +192,7 @@ class Fractribution(object):
 
         Side-effect: Updates channel_to_attribution dicts in _path_tuple_to_summary.
         """
-        print("running linear attribution...")
+        print("Running linear attribution...")
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             path_summary.channel_to_attribution = {}
             if not path_tuple:
@@ -211,7 +211,7 @@ class Fractribution(object):
 
         Side-effect: Updates channel_to_attribution dicts in _path_tuple_to_summary.
         """
-        print("running position_based attribution...")
+        print("Running position_based attribution...")
         for path_tuple, path_summary in self._path_tuple_to_summary.items():
             path_summary.channel_to_attribution = {}
             if not path_tuple:
