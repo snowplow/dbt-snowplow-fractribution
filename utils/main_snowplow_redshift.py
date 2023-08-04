@@ -59,9 +59,15 @@ def fetch_results_as_pandas_dataframe(cs, query, column_names):
 
     return pd.DataFrame(rows, columns=names)
 
+def fetch_results_as_pandas_dataframe_with_default_columns(cs, query):
+    cs.execute(query)
+    rows = cs.fetchall()
+
+    return pd.DataFrame(rows)
+
 
 def _is_valid_column_name(column_name: str) -> bool:
-    """Returns True if the column_name is a valid redshift column name."""
+    """Returns True if the column_name is a valid redshift column name"""
 
     return (
         len(column_name) <= 115
@@ -161,8 +167,13 @@ def create_attribution_report_table(cs):
     query = f"""
         CREATE TABLE {db_schema}.snowplow_fractribution_report_table AS
         SELECT
-            *,
-            coalesce(revenue/nullif(spend, 0), 0) AS roas
+            a.channel,
+            a.conversion_window_start_date,
+            a.conversion_window_end_date,
+            a.conversions,
+            a.revenue,
+            b.spend,
+            coalesce(a.revenue/nullif(b.spend, 0), 0) AS roas
         FROM
             {db_schema}.snowplow_fractribution_channel_attribution a
         LEFT JOIN
@@ -173,7 +184,8 @@ def create_attribution_report_table(cs):
                     'channel', 'conversions', 'revenue', 'roas']
     cs.execute(f"DROP TABLE IF EXISTS {db_schema}.snowplow_fractribution_report_table")
     cs.execute(query)
-    return fetch_results_as_pandas_dataframe(cs, f"SELECT * FROM {db_schema}.snowplow_fractribution_report_table", column_names)
+    print(f"Table {db_schema}.snowplow_fractribution_report_table created")
+    return fetch_results_as_pandas_dataframe_with_default_columns(cs, f"SELECT * FROM {db_schema}.snowplow_fractribution_report_table")
 
 
 def run_fractribution(params: Mapping[str, Any]) -> None:
@@ -216,9 +228,8 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
         cs.execute(f"DROP TABLE IF EXISTS {db_schema}.snowplow_fractribution_path_summary_with_channels")
         cs.execute(
             f"CREATE TABLE {db_schema}.snowplow_fractribution_path_summary_with_channels ({text_column_types})")
-        if params["verbose"]:
-            print(
-                "Table snowplow_fractribution_path_summary_with_channels is created. Inserting data...")
+
+        print(f"Table {db_schema}.snowplow_fractribution_path_summary_with_channels is created")
 
         # Insert rows one at a time
         for dic in path_list:
@@ -233,11 +244,11 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
                     except BaseException as error:
                         values.append("NULL")
             sql += ", ".join(values) + ")"
+            if params["verbose"]:
+                print(sql)
             cs.execute(sql)
-
         if params["verbose"]:
-            print(
-                f"Uploading data to {db_schema}.snowplow_fractribution_path_summary_with_channels finished.")
+            print(f"Records inserted into {db_schema}.snowplow_fractribution_path_summary_with_channels table, uploading data to {db_schema}.snowplow_fractribution_path_summary_with_channels finished.")
 
         conversion_window_start_date = params["conversion_window_start_date"]
         conversion_window_end_date = params["conversion_window_end_date"]
@@ -249,7 +260,7 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
         cs.execute(f"DROP TABLE IF EXISTS {db_schema}.snowplow_fractribution_channel_attribution")
         cs.execute(
             f"CREATE TABLE {db_schema}.snowplow_fractribution_channel_attribution (conversion_window_start_date varchar(max), conversion_window_end_date  varchar(max), channel  varchar(max), conversions decimal(10, 2), revenue decimal(10, 2))")
-
+        print(f"Table {db_schema}.snowplow_fractribution_channel_attribution created")
         rows = []
         for channel, attribution in channel_to_attribution.items():
             row = {
@@ -274,7 +285,11 @@ def run_fractribution(params: Mapping[str, Any]) -> None:
                 else:
                     values.append("\'"+str(dic[col])+"\'")
             sql += ", ".join(values) + ")"
+            if params["verbose"]:
+                print(sql)
             cs.execute(sql)
+        if params["verbose"]:
+            print(f"Records inserted into {db_schema}.snowplow_fractribution_channel_attribution table")
 
         report = create_attribution_report_table(cs)
 
@@ -321,7 +336,6 @@ def standalone_main(args):
         "verbose": args.verbose,
     }
     run(input_params)
-    print("Report table created")
 
 
 if __name__ == "__main__":
