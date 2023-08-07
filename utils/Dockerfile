@@ -34,6 +34,10 @@ ENV redshift_user=${redshift_user}
 ENV redshift_password=${redshift_password}
 ENV redshift_schema=${redshift_schema}
 
+# Conditional --verbose tag, set to "true", if needed for debugging
+ARG verbose_run
+ENV verbose_run=${verbose_run}
+
 WORKDIR /app
 
 COPY fractribution.py .
@@ -45,4 +49,4 @@ COPY requirements.txt .
 
 RUN pip install -r requirements.txt
 
-CMD ["sh", "-c", "python main_snowplow_$warehouse.py --attribution_model=$attribution_model --conversion_window_start_date=$conversion_window_start_date --conversion_window_end_date=$conversion_window_end_date"]
+CMD ["sh", "-c",  "if [ \"$verbose_run\" = \"true\" ]; then python main_snowplow_$warehouse.py --attribution_model=$attribution_model --conversion_window_start_date=$conversion_window_start_date --conversion_window_end_date=$conversion_window_end_date --verbose; else python main_snowplow_$warehouse.py --attribution_model=$attribution_model --conversion_window_start_date=$conversion_window_start_date --conversion_window_end_date=$conversion_window_end_date; fi"]
