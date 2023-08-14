@@ -5,3 +5,7 @@ models:
     tests:
       - dbt_utils.equality:
           compare_model: ref('test_path_transformations_expected')
+  - name: test_time_limits_actual
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('test_time_limits_expected')

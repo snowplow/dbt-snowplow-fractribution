@@ -27,7 +27,8 @@ clean-targets:         # directories to be removed by `dbt clean`
 vars:
   snowplow_fractribution:
     snowplow__conversion_window_start_date: '' # conversion window start date
-    snowplow__conversion_window_end_date: '' # conversion window end date is dynamically set to current_date()-1 in the code
+    snowplow__conversion_window_end_date: '' # conversion window end date
+    snowplow__conversion_window_days: 30 # last complete nth number of days (calculated from the last processed pageview within page_views_source) to dynamically update the conversion_window_start_date and end_date with. Will only apply if both variables are left as an empty string.
     snowplow__conversion_hosts: ['a.com'] # url_hosts to consider
     snowplow__path_transforms: {'exposure_path': null} # dictionary of path transforms (and their argument, null if none) to perform on the full conversion path (see create_udfs.sql)
     snowplow__path_lookback_steps: 0 # Limit for the number of marketing channels to look at before the conversion (0 = unlimited)
