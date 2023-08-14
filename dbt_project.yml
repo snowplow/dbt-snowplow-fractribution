@@ -35,6 +35,7 @@ vars:
 
     snowplow__consider_intrasession_channels: false # false = only considers the channel at the start (first page view) of the session, true = consider multiple channels in the conversion session as well as historical channels
     snowplow__channels_to_exclude: [] # Channels to exclude before creating path summaries (and therefore excluded from fractribution analysis), e.g. ['Direct']
+    snowplow__channels_to_include: [] # Optional filter on which channels to include when creating path summaries e.g. ['Direct']
     snowplow__use_snowplow_web_user_mapping_table: false # true if using the Snowplow base model for web user mappings (domain_userid => user_id)
 
     # Overwrite these source table vars in your own dbt_project.yml if not using these defaults:

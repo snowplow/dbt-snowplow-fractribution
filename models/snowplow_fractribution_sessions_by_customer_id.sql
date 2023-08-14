@@ -57,7 +57,17 @@ select
   *
 from
   base_data
-{% if var('snowplow__channels_to_exclude') %}
+{% if var('snowplow__channels_to_exclude') and var('snowplow__channels_to_include') %}
     -- Filters out any unwanted channels
     where channel not in ({{ snowplow_utils.print_list(var('snowplow__channels_to_exclude')) }})
+    and channel in ({{ snowplow_utils.print_list(var('snowplow__channels_to_include')) }})
+
+{% elif var('snowplow__channels_to_exclude') %}
+    -- Filters out any unwanted channels
+    where channel not in ({{ snowplow_utils.print_list(var('snowplow__channels_to_exclude')) }})
+
+{% elif var('snowplow__channels_to_include') %}
+    -- Filters out any unwanted channels
+    where channel in ({{ snowplow_utils.print_list(var('snowplow__channels_to_include')) }})
+
 {% endif %}
