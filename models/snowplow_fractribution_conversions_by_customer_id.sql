@@ -22,10 +22,10 @@ from {{ var('snowplow__conversions_source' )}} as events
 {% endif %}
 
 where {{ conversion_clause() }}
-  and date(derived_tstamp) >= '{{ get_lookback_date_limits("min") }}'
-  and date(derived_tstamp) <= '{{ get_lookback_date_limits("max") }}'
+  and date(derived_tstamp) >= '{{ get_lookback_date_limits("min", "conversions") }}'
+  and date(derived_tstamp) <= '{{ get_lookback_date_limits("max", "conversions") }}'
 
   {% if var('snowplow__conversions_source_filter') != '' %}
-    and date({{ var('snowplow__conversions_source_filter') }}) >= {{ dateadd('day',-var('snowplow__conversions_source_filter_buffer_days'), "'"~get_lookback_date_limits('min')~"'") }}
-    and date({{ var('snowplow__conversions_source_filter') }}) <= {{ dateadd('day', var('snowplow__conversions_source_filter_buffer_days'),"'"~get_lookback_date_limits('max')~"'") }}
+    and date({{ var('snowplow__conversions_source_filter') }}) >= {{ dateadd('day',-var('snowplow__conversions_source_filter_buffer_days'), "'"~get_lookback_date_limits('min', 'conversions')~"'") }}
+    and date({{ var('snowplow__conversions_source_filter') }}) <= {{ dateadd('day', var('snowplow__conversions_source_filter_buffer_days'),"'"~get_lookback_date_limits('max', 'conversions')~"'") }}
   {% endif %}

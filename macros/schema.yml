@@ -15,6 +15,9 @@ macros:
       - name: limit_type
         type: string
         description: Can be either 'min' or 'max' depending on if the upper or lower boundary date needs to be returned
+      - name: model
+        type: string
+        description: Can either be 'sessions' for usage within snowplow_fractribution_sessions_by_customer_id or 'conversions' to use for snowplow_fractribution_conversions_by_customer_id
   - name: create_udfs
     description: '{{ doc("macro_create_udfs") }}'
   - name: path_transformation
