@@ -31,9 +31,9 @@ from {{ var('snowplow__page_views_source') }}  page_views
   on page_views.domain_userid = user_mapping.domain_userid
 {% endif %}
 
-where date(derived_tstamp) >= '{{ get_lookback_date_limits("min") }}'
+where date(derived_tstamp) >= '{{ get_lookback_date_limits("min", "sessions") }}'
 
-  and date(derived_tstamp) <= '{{ get_lookback_date_limits("max") }}'
+  and date(derived_tstamp) <= '{{ get_lookback_date_limits("max", "sessions") }}'
 
   and
     -- restrict to certain hostnames
