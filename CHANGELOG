@@ -1,3 +1,16 @@
+snowplow-fractribution 0.3.4 (2023-08-17)
+---------------------------------------
+## Summary
+This release adds a couple of features: handling paths that are longer than 256 characters in Redshift, providing the option to filter channels based on which ones to include, and enables automatically setting the conversion window base on the last nth number of complete days within the package.
+
+## Features
+- Increase redshift path inputs to use max varchar instead of default 256 (Close #26)
+- Make conversion_window_start_date more configurable (Close #27)
+- Add channels_to_include variable (Close #28)
+
+## Upgrading
+Bump the snowplow-fractribution version in your `packages.yml` file.
+
 snowplow-fractribution 0.3.3 (2023-07-27)
 ---------------------------------------
 ## Summary
