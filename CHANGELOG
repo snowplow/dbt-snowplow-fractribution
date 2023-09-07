@@ -1,3 +1,10 @@
+snowplow-fractribution 0.3.5 (2023-09-12)
+---------------------------------------
+## Summary
+Bumps the max supported `snowplow-utils` version to allow usage with our other packages.
+## Upgrading
+Bump the snowplow-fractribution version in your `packages.yml` file.
+
 snowplow-fractribution 0.3.4 (2023-08-17)
 ---------------------------------------
 ## Summary
