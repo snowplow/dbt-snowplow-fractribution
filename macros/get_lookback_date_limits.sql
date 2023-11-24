@@ -12,15 +12,15 @@
       {% if var("snowplow__conversion_window_start_date") == '' and var("snowplow__conversion_window_end_date") == '' %}
            with base as (
               select max(start_tstamp) as last_pageview,
-                    min(start_tstamp) as first_pageview,
+                    min(start_tstamp) as first_pageview
               from {{ var('snowplow__page_views_source') }}
            )
            select
              false as is_over_limit, -- the last pageview will be taken from the page_views_source
-             cast(first_pageview as date) > cast({{ dbt.dateadd('day', -combined_time, last_pageview) }} as date) as is_below_limit,
+             cast(first_pageview as date) > cast({{ dbt.dateadd('day', -combined_time, 'last_pageview') }} as date) as is_below_limit,
              cast(last_pageview as {{ type_string() }}) as last_processed_page_view,
              cast(first_pageview as {{ type_string() }}) as first_processed_page_view
-
+          from base
       -- when the user opts for manually defined conversion window
       {% elif var("snowplow__conversion_window_start_date")|length and var("snowplow__conversion_window_end_date")|length %}
            select
