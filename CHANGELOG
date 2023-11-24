@@ -1,3 +1,11 @@
+snowplow-fractribution 0.3.6 (2023-11-24)
+---------------------------------------
+## Summary
+Fixes an issue with the window calculation when start/end dates are not specified.
+
+## Upgrading
+Bump the snowplow-fractribution version in your `packages.yml` file.
+
 snowplow-fractribution 0.3.5 (2023-09-12)
 ---------------------------------------
 ## Summary
