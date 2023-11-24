@@ -45,7 +45,7 @@
     {% set last_processed_page_view = result[0][2] %}
     {% if page_view_max == True %}
       {%- do exceptions.raise_compiler_error("Snowplow Error: the derived.page_view source does not cover the full fractribution analysis period.
-                                              Please process your web model first before proceeding with this package. Details: snowplow__conversion_window_start_date "
+                                              Please process your web model first before proceeding with this package. Details: snowplow__conversion_window_end_date "
                                               + var('snowplow__conversion_window_end_date') + " is later than last processed pageview " + last_processed_page_view) %}
     {% endif %}
     {% set page_view_min = result[0][1] %}
