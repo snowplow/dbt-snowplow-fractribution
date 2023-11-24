@@ -1,3 +1,10 @@
+{#
+Copyright (c) 2022-present Snowplow Analytics Ltd. All rights reserved.
+This program is licensed to you under the Snowplow Community License Version 1.0,
+and you may not use this file except in compliance with the Snowplow Community License Version 1.0.
+You may obtain a copy of the Snowplow Community License Version 1.0 at https://docs.snowplow.io/community-license-1.0
+#}
+
 --This model is only used when the attribution package is run on Snowflake and the Python script will be run using Snowpark, rather than manually.
 {{ config(
     enabled = target.type == "snowflake" and var('snowplow__run_python_script_in_snowpark', false),

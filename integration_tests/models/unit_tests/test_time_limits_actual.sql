@@ -1,3 +1,10 @@
+{#
+Copyright (c) 2022-present Snowplow Analytics Ltd. All rights reserved.
+This program is licensed to you under the Snowplow Community License Version 1.0,
+and you may not use this file except in compliance with the Snowplow Community License Version 1.0.
+You may obtain a copy of the Snowplow Community License Version 1.0 at https://docs.snowplow.io/community-license-1.0
+#}
+
 
 /* these test cases should help understand how the upper and lower limits work for developers
    integration test data when processed by the web model results in '2022-06-03 04:44:32.000' as first_pageview, '2022-08-01 05:37:27.000' as last_pageview
