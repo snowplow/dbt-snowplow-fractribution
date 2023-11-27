@@ -181,7 +181,7 @@
   -- Returns the last snowplow__path_lookback_steps channels in the path if snowplow__path_lookback_steps > 0,
   -- or the full path otherwise.
   create or replace function {{target.schema}}.trim_long_path(path varchar(max), snowplow__path_lookback_steps integer)
-  returns varchar
+  returns varchar(max)
   stable
   AS $$
   path_list = path.split(' > ')
@@ -212,7 +212,7 @@
   -- Returns the path with all copies of targetElem removed, unless the path consists only of
   -- targetElems, in which case the original path is returned.
   create or replace function {{target.schema}}.remove_if_not_all(path varchar(max), target_elem varchar)
-  returns varchar
+  returns varchar(max)
   stable
   AS $$
 
@@ -238,7 +238,7 @@
   -- Returns the path with all copies of targetElem removed from the tail, unless the path consists
   -- only of targetElems, in which case the original path is returned.
   create or replace function {{target.schema}}.remove_if_last_and_not_all(path varchar(max), target_elem varchar)
-  returns varchar
+  returns varchar(max)
   stable
   AS $$
 
@@ -269,7 +269,7 @@
   -- Returns the unique/identity transform of the given path array.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, B, C, D, C, C].
   create or replace function {{target.schema}}.unique_path(path varchar(max))
-  returns varchar
+  returns varchar(max)
   stable
   AS $$
 
@@ -284,7 +284,7 @@
   -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C, D, C].
 
   create or replace function {{target.schema}}.exposure_path(path varchar(max))
-  returns varchar
+  returns varchar(max)
   stable
   AS $$
 
@@ -308,7 +308,7 @@
   -- Repeated channels are removed.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D, A, B, C].
   create or replace function {{target.schema}}.first_path(path varchar(max))
-  returns varchar
+  returns varchar(max)
   stable
   AS $$
 
@@ -331,7 +331,7 @@
   -- Repeat events are removed, but tracked with a count.
   -- E.g. [D, A, B, B, C, D, C, C] --> [D(2), A(1), B(2), C(3)].
   create or replace function {{target.schema}}.frequency_path(path varchar(max))
-  returns varchar
+  returns varchar(max)
   stable
   AS $$
 
