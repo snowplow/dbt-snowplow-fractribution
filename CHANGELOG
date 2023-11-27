@@ -1,3 +1,8 @@
+snowplow-fractribution 0.3.7 (2023-11-27)
+---------------------------------------
+## Summary
+Fixes an issue where long paths in redshift could cause the model to fail as the output of the function was not set to the max length.
+
 snowplow-fractribution 0.3.6 (2023-11-24)
 ---------------------------------------
 ## Summary
